@@ -23,6 +23,8 @@ def load(name):
 
 
 def main() -> int:
+    if hasattr(sys.stdout, "reconfigure"):  # Windows consoles default to cp1252, which can't print "≤"
+        sys.stdout.reconfigure(encoding="utf-8")
     readme = (ROOT / "README.md").read_text(encoding="utf-8")
     claims: list[tuple[str, str]] = []  # (what, text that must appear in the README)
 
