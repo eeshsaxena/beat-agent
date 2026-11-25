@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Beat Agent</title>
+<style>
+  :root {
+    --bg: #101216; --panel: #171a20; --panel2: #1d2129; --ink: #e9e7e2; --mute: #8d929b; --line: #2a2f39;
+    --accent: #f0b54a; --beat: rgba(233,231,226,.16); --down: #f0b54a; --wave: #6f8fb8; --splice: #e5604f;
+    --ok: #59c49d; --warn: #e0a83a; --err: #e5604f; --radius: 10px;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: light) {
+    :root { --bg:#f5f3ee; --panel:#ffffff; --panel2:#f0ede6; --ink:#1c1e22; --mute:#61666f; --line:#dcd7cd;
+      --accent:#b06f08; --beat: rgba(28,30,34,.16); --down:#b06f08; --wave:#4f6f99; --splice:#c4402f; --ok:#1d8a62; --warn:#9a6a08; --err:#c4402f; }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink); }
+  body { font: 14.5px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif; }
+  header { display: flex; align-items: center; gap: 16px; padding: 14px 20px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+  header h1 { font-size: 17px; margin: 0; letter-spacing: .01em; }
+  header .sub { color: var(--mute); font-size: 13px; }
+  .badge { font-size: 12px; padding: 3px 9px; border-radius: 99px; border: 1px solid var(--line); color: var(--mute); }
+  .badge.ok { color: var(--ok); border-color: color-mix(in srgb, var(--ok) 45%, transparent); }
+  .badge.err { color: var(--err); border-color: color-mix(in srgb, var(--err) 45%, transparent); }
+  .badge.warn { color: var(--warn); border-color: color-mix(in srgb, var(--warn) 45%, transparent); }
+  nav { display: flex; gap: 4px; margin-left: auto; }
+  nav button { background: none; border: 1px solid transparent; color: var(--mute); padding: 6px 14px; border-radius: 8px; font: inherit; cursor: pointer; }
+  nav button[aria-selected="true"] { color: var(--ink); border-color: var(--line); background: var(--panel); }
+  main { padding: 18px 20px 60px; max-width: 1280px; margin: 0 auto; }
+  section[hidden] { display: none; }
+  .row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+  .grid2 { display: grid; grid-template-columns: minmax(0, 1fr) 380px; gap: 18px; margin-top: 16px; }
+  @media (max-width: 980px) { .grid2 { grid-template-columns: 1fr; } }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
+  .panel h2 { font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: var(--mute); margin: 0 0 10px; font-weight: 600; }
+  select, input[type=number], input[type=text] { font: inherit; color: var(--ink); background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 7px 10px; }
+  input[type=number] { width: 84px; }
+  button { font: inherit; color: var(--ink); background: var(--panel2); border: 1px solid var(--line); border-radius: 8px; padding: 7px 14px; cursor: pointer; }
+  button.primary { background: var(--accent); color: #1a1205; border-color: transparent; font-weight: 600; }
+  button:disabled { opacity: .45; cursor: default; }
+  button:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  label { color: var(--mute); font-size: 13px; display: inline-flex; gap: 6px; align-items: center; }
+  .status { min-height: 22px; font-size: 13px; color: var(--mute); font-variant-numeric: tabular-nums; }
+  .status.err { color: var(--err); } .status.ok { color: var(--ok); }
+  .spinner { display: inline-block; width: 11px; height: 11px; border: 2px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: spin .8s linear infinite; vertical-align: -1px; margin-right: 6px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .spinner { animation: none; } }
+  .facts { display: flex; gap: 22px; flex-wrap: wrap; margin: 2px 0 12px; }
+  .fact .k { color: var(--mute); font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; }
+  .fact .v { font-family: var(--mono); font-size: 15px; }
+  canvas { width: 100%; height: 190px; display: block; background: var(--panel2); border-radius: 8px; cursor: crosshair; }
+  .hover { font-family: var(--mono); font-size: 12.5px; color: var(--mute); min-height: 18px; margin-top: 6px; }
+  audio { width: 100%; margin-top: 10px; }
+  .chat { display: flex; flex-direction: column; height: 560px; }
+  .msgs { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; }
+  .msg.user { align-self: flex-end; background: var(--panel2); border: 1px solid var(--line); padding: 7px 11px; border-radius: 10px 10px 2px 10px; max-width: 90%; }
+  .msg.agent { color: var(--ink); max-width: 100%; }
+  .echo { font-family: var(--mono); font-size: 12.3px; line-height: 1.5; padding: 7px 9px; border-radius: 6px; border-left: 3px solid var(--ok); background: color-mix(in srgb, var(--ok) 9%, transparent); margin-top: 6px; white-space: pre-wrap; }
+  .echo.proposed { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 9%, transparent); }
+  .echo.error { border-color: var(--err); background: color-mix(in srgb, var(--err) 9%, transparent); }
+  .echo.warning { border-color: var(--warn); background: color-mix(in srgb, var(--warn) 8%, transparent); }
+  .echo.sections { border-color: var(--mute); background: transparent; }
+  .tag { font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase; color: var(--mute); display: block; margin-bottom: 2px; }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 0; }
+  .chip { font-size: 12.5px; padding: 4px 9px; border-radius: 99px; }
+  .composer { display: flex; gap: 8px; margin-top: 8px; }
+  .composer input { flex: 1; }
+  .history { font-size: 13px; color: var(--mute); margin: 8px 0 0; padding-left: 18px; }
+  .history li.undone { text-decoration: line-through; opacity: .6; }
+  table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+  td, th { padding: 6px 8px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+  th { color: var(--mute); font-weight: 500; font-size: 12px; }
+  td.num { font-family: var(--mono); }
+  iframe { width: 100%; height: 560px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel2); }
+  .pass { color: var(--ok); } .fail { color: var(--err); }
+  .empty { color: var(--mute); font-size: 13.5px; padding: 24px 4px; }
+  .summary { font-family: var(--mono); font-size: 12px; white-space: pre-wrap; color: var(--mute); margin: 10px 0 0; }
+  details.direct { margin-top: 10px; border-top: 1px solid var(--line); padding-top: 8px; font-size: 13px; }
+  details.direct summary { color: var(--mute); cursor: pointer; }
+  details.direct input[type=number] { width: 64px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Beat Agent</h1>
+  <span class="sub">beat grids · chat edits on the grid · audio to Web Audio</span>
+  <span class="badge" id="llm">checking LLM…</span>
+  <nav role="tablist">
+    <button role="tab" aria-selected="true" data-tab="edit">Edit</button>
+    <button role="tab" aria-selected="false" data-tab="sync">Sync</button>
+    <button role="tab" aria-selected="false" data-tab="recreate">Recreate</button>
+  </nav>
+</header>
+<main>
+  <!-- ============================== EDIT ============================== -->
+  <section id="tab-edit">
+    <div class="row">
+      <select id="track" aria-label="Track"></select>
+      <button class="primary" id="open">Analyse &amp; open</button>
+      <label>or upload <input type="file" id="upload" accept=".wav,.flac,.mp3,.aiff,.ogg"></label>
+      <span class="status" id="edit-status"></span>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h2>Track</h2>
+        <div id="edit-empty" class="empty">Pick a track and press “Analyse &amp; open”. The beat grid is measured by the tracker, never guessed by the language model.</div>
+        <div id="edit-body" hidden>
+          <div class="facts" id="facts"></div>
+          <canvas id="wave" aria-label="Waveform with beat grid"></canvas>
+          <div class="hover" id="hover">hover the waveform for time, beat and bar · click to seek · drag to pan</div>
+          <div class="row" style="margin-top:8px">
+            <button id="zin" aria-label="Zoom in">Zoom +</button><button id="zout" aria-label="Zoom out">Zoom −</button><button id="zfit">Fit</button>
+            <label><input type="checkbox" id="clicks"> click audition</label>
+            <span style="flex:1"></span>
+            <button id="undo">Undo</button><button id="redo">Redo</button>
+          </div>
+          <audio id="player" controls preload="auto"></audio>
+          <div class="row" style="margin-top:8px; font-size:13px">
+            Download: <a id="dl-audio" href="#">edited audio</a> · <a id="dl-grid" href="#">beat grid JSON</a> · <a id="dl-click" href="#">click audition</a> · <a id="dl-edl" href="#">edit decision list (JSON)</a>
+          </div>
+          <ol class="history" id="history"></ol>
+          <div class="summary" id="summary"></div>
+        </div>
+      </div>
+      <div class="panel chat">
+        <div class="row" style="justify-content:space-between"><h2>Chat</h2>
+          <label title="Edits are proposed with their exact echo; nothing changes until you press Apply."><input type="checkbox" id="confirm"> confirm before applying</label></div>
+        <div class="msgs" id="msgs"><div class="empty">Edits are addressed in beats (from 0, ranges end where the end beat starts) and bars (from 1, inclusive). Every applied edit is echoed in exact beats, bars and seconds.</div></div>
+        <div class="chips" id="chips"></div>
+        <div class="composer"><input type="text" id="msg" placeholder="e.g. cut beat 16–32 and repeat it twice" aria-label="Message" disabled><button class="primary" id="send" disabled>Send</button></div>
+        <details class="direct" id="direct">
+          <summary>Direct edit (no LLM): the same typed operation the chat produces</summary>
+          <div class="row" style="margin-top:8px">
+            <select id="d-op" aria-label="Operation">
+              <option value="repeat">repeat</option><option value="remove">remove</option><option value="keep_only">keep only</option>
+              <option value="fade">fade</option><option value="gain">gain</option><option value="mute">mute</option>
+            </select>
+            <select id="d-unit" aria-label="Unit"><option value="bars">bars (1-based, inclusive)</option><option value="beats">beats (0-based, end exclusive)</option></select>
+            <input type="number" id="d-a" value="1" aria-label="Start"> to <input type="number" id="d-b" value="4" aria-label="End">
+            <input type="number" id="d-x" value="2" aria-label="Plays, dB or 0/1 for fade in/out" title="repeat: plays in total · gain: dB · fade: 1 = out, 0 = in">
+            <button id="d-apply" disabled>Apply</button>
+          </div>
+          <div class="hover" id="d-help">repeat: last field = plays in total · gain: dB · fade: 1 = out, 0 = in</div>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================== SYNC ============================== -->
+  <section id="tab-sync" hidden>
+    <div class="panel">
+      <h2>Beat-match two tracks</h2>
+      <div class="row">
+        <label>Master (A) <select id="sa"></select></label>
+        <label>Bar <input type="number" id="sba" value="33" min="1"></label>
+        <label>Incoming (B) <select id="sb"></select></label>
+        <label>Bar <input type="number" id="sbb" value="1" min="1"></label>
+        <label>Seconds <input type="number" id="ssec" value="60" min="5" max="300"></label>
+        <button class="primary" id="dosync">Render overlap</button>
+        <span class="status" id="sync-status"></span>
+      </div>
+      <div id="sync-out" style="margin-top:14px"></div>
+    </div>
+  </section>
+
+  <!-- ============================== RECREATE ============================== -->
+  <section id="tab-recreate" hidden>
+    <div class="row">
+      <select id="clip" aria-label="Clip"></select>
+      <button class="primary" id="dorec">Recreate as Web Audio</button>
+      <span class="status" id="rec-status"></span>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <h2>Original vs recreation</h2>
+        <div id="rec-empty" class="empty">Pick a short clip (2–16 bars). Tempo, onsets and notes are measured (Beat This!, Demucs, Basic Pitch); the page is a fixed synth engine reading the score as data.</div>
+        <div id="rec-body" hidden>
+          <div class="tag">Original</div><audio id="orig" controls></audio>
+          <div class="tag" style="margin-top:12px">Recreation (synthesis only, no network)</div>
+          <!-- Not sandboxed: the page is our fixed template plus validated score data (no generated code),
+               and its own Content-Security-Policy blocks all network access. -->
+          <iframe id="page" title="Recreation page"></iframe>
+          <div class="row" style="margin-top:8px;font-size:13px"><a id="open-page" href="#" target="_blank" rel="noopener">open the page in a new tab</a> · <a id="dl-page" href="#">download the page (HTML)</a></div>
+          <table id="rec-tracks" style="margin-top:12px"></table>
+        </div>
+      </div>
+      <div class="panel chat">
+        <h2>Change the recreation</h2>
+        <div class="msgs" id="rmsgs"><div class="empty">Try “mute the drums”, “make the bass brighter”, “play it at 140”.</div></div>
+        <div class="composer"><input type="text" id="rmsg" placeholder="e.g. play it at 140" aria-label="Recreation message" disabled><button class="primary" id="rsend" disabled>Send</button></div>
+      </div>
+    </div>
+  </section>
+</main>
+<script>
+"use strict";
+const $ = (id) => document.getElementById(id);
+const api = async (url, opts = {}) => {
+  const r = await fetch(url, { headers: { "Content-Type": "application/json" }, ...opts });
+  const body = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(body.detail || body.error || `HTTP ${r.status}`);
+  return body;
+};
+function setStatus(el, text, kind = "") { el.className = "status " + kind; el.innerHTML = text; }
+async function runJob(jobId, statusEl) {
+  for (;;) {
+    const j = await api(`/api/jobs/${jobId}`);
+    if (j.status === "done") { setStatus(statusEl, `done in ${j.elapsed_s} s`, "ok"); return j.result; }
+    if (j.status === "error") { setStatus(statusEl, `error: ${escapeHtml(j.error)}`, "err"); throw new Error(j.error); }
+    setStatus(statusEl, `<span class="spinner"></span>${escapeHtml(j.stage)} · ${j.elapsed_s} s`);
+    await new Promise((r) => setTimeout(r, 400));
+  }
+}
+const escapeHtml = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+
+// ---------------------------------------------------------------- tabs
+document.querySelectorAll("nav button").forEach((b) => b.addEventListener("click", () => {
+  document.querySelectorAll("nav button").forEach((x) => x.setAttribute("aria-selected", x === b));
+  for (const t of ["edit", "sync", "recreate"]) $("tab-" + t).hidden = t !== b.dataset.tab;
+}));
+
+// ---------------------------------------------------------------- library
+let LIB = [];
+async function loadLibrary(select) {
+  const lib = await api("/api/library");
+  LIB = lib.tracks;
+  const why = (lib.llm_status && lib.llm_status.note) || "";
+  $("llm").textContent = lib.interpreter === "llm" ? "chat: Claude (LLM)" : `chat: offline grammar (${why.replace(": offline grammar", "") || "no LLM key"})`;
+  $("llm").className = "badge " + (lib.interpreter === "llm" ? "ok" : "warn");
+  $("llm").title = lib.interpreter === "llm" ? "Messages are interpreted by Claude; if it is unreachable the app falls back to the offline grammar and says so."
+    : "No API key: a deterministic grammar interprets a documented subset of phrasings and refuses the rest.";
+  const fill = (el, filter) => { el.innerHTML = ""; for (const t of LIB.filter(filter)) {
+    const o = document.createElement("option"); o.value = t.id; o.textContent = `${t.id} · ${t.duration_s.toFixed(1)} s · ${t.sample_rate / 1000} kHz${t.uploaded ? " · uploaded" : ""}`; el.appendChild(o); } };
+  fill($("track"), (t) => t.kind === "track"); fill($("sa"), (t) => t.kind === "track"); fill($("sb"), (t) => t.kind === "track");
+  fill($("clip"), (t) => t.kind === "clip");
+  if (select) $("track").value = select;
+  if ([...$("sa").options].some((o) => o.value === "A1")) $("sa").value = "A1";
+  if ([...$("sb").options].some((o) => o.value === "A7")) $("sb").value = "A7";
+}
+$("upload").addEventListener("change", async (e) => {
+  const f = e.target.files[0]; if (!f) return;
+  const fd = new FormData(); fd.append("file", f);
+  setStatus($("edit-status"), `<span class="spinner"></span>uploading ${escapeHtml(f.name)}`);
+  try { const r = await fetch("/api/upload", { method: "POST", body: fd }); const b = await r.json(); if (!r.ok) throw new Error(b.detail);
+    await loadLibrary(b.id); setStatus($("edit-status"), `uploaded as ${escapeHtml(b.id)}`, "ok");
+  } catch (err) { setStatus($("edit-status"), `upload failed: ${escapeHtml(err.message)}`, "err"); }
+});
+
+// ---------------------------------------------------------------- edit session
+let SID = null, VIEW = null, V0 = 0, V1 = 1;
+const SUGGEST = { A1: ["Cut beat 16–32 and repeat it twice.", "Now fade out the last 8 beats.", "Undo.", "Remove bar 5.", "Chop out the boring part.", "Sync A7 to A1, starting the overlap at A1's bar 33."],
+  A2: ["Loop the first 4 bars four times, then let the track play on."], A3: ["Cut beat 0 to beat 8.", "Delete bars 200–210."],
+  A5: ["Repeat the last bar before the tempo change twice."] };
+$("open").addEventListener("click", async () => {
+  const t = $("track").value; if (!t) return;
+  $("open").disabled = true;
+  try {
+    const { job } = await api("/api/sessions", { method: "POST", body: JSON.stringify({ track: t }) });
+    const res = await runJob(job, $("edit-status"));
+    SID = res.session; $("msgs").innerHTML = ""; await refresh(true);
+    $("chips").innerHTML = ""; for (const s of SUGGEST[t] || []) { const c = document.createElement("button"); c.className = "chip"; c.textContent = s; c.onclick = () => { $("msg").value = s; send(); }; $("chips").appendChild(c); }
+  } catch (e) { /* status shows it */ } finally { $("open").disabled = false; }
+});
+async function refresh(fit = false) {
+  VIEW = await api(`/api/sessions/${SID}`);
+  $("edit-empty").hidden = true; $("edit-body").hidden = false;
+  const f = [["Track", VIEW.name], ["Tempo", VIEW.tempo_bpm.toFixed(2) + " BPM"], ["Metre", VIEW.time_signature], ["Grid", VIEW.grid_type],
+    ["Beats", VIEW.n_beats], ["Bars", VIEW.n_bars], ["Length", VIEW.duration_s.toFixed(2) + " s"], ["Format", `${VIEW.sample_rate / 1000} kHz ${VIEW.format[1]}`], ["Confidence", VIEW.confidence.toFixed(2)]];
+  $("facts").innerHTML = f.map(([k, v]) => `<div class="fact"><div class="k">${k}</div><div class="v">${escapeHtml(v)}</div></div>`).join("");
+  $("summary").textContent = VIEW.summary;
+  $("undo").disabled = !VIEW.can_undo; $("redo").disabled = !VIEW.can_redo;
+  $("history").innerHTML = VIEW.history.map((h) => `<li>${escapeHtml(h)}</li>`).join("") + VIEW.redo.map((h) => `<li class="undone">${escapeHtml(h)}</li>`).join("");
+  const q = `v=${VIEW.version}`;
+  $("player").src = `/api/sessions/${SID}/audio?clicks=${$("clicks").checked ? 1 : 0}&${q}`;
+  for (const k of ["audio", "grid", "click", "edl"]) $("dl-" + k).href = `/api/sessions/${SID}/download/${k}?${q}`;
+  $("msg").disabled = $("send").disabled = false;
+  $("d-apply").disabled = false;
+  if (fit) { V0 = 0; V1 = VIEW.duration_s; }
+  V1 = Math.min(V1, VIEW.duration_s);
+  draw();
+}
+$("clicks").addEventListener("change", () => { if (!SID) return; const t = $("player").currentTime; $("player").src = `/api/sessions/${SID}/audio?clicks=${$("clicks").checked ? 1 : 0}&v=${VIEW.version}`; $("player").currentTime = t; });
+for (const [id, action] of [["undo", "undo"], ["redo", "redo"]]) $(id).addEventListener("click", async () => {
+  try { const r = await api(`/api/sessions/${SID}/${action}`, { method: "POST" }); addEcho($("msgs"), { user: `[${action} button]`, reply: "", events: [{ type: action, echo: [r.message] }] }); await refresh(); }
+  catch (e) { setStatus($("edit-status"), escapeHtml(e.message), "err"); }
+});
+
+// waveform
+const cv = $("wave"), cx = cv.getContext("2d");
+function css(name) { return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function draw() {
+  if (!VIEW) return;
+  const dpr = window.devicePixelRatio || 1, W = cv.clientWidth, H = cv.clientHeight;
+  cv.width = W * dpr; cv.height = H * dpr; cx.setTransform(dpr, 0, 0, dpr, 0, 0); cx.clearRect(0, 0, W, H);
+  const x = (t) => (t - V0) / (V1 - V0) * W, mid = H / 2 + 8;
+  const P = VIEW.peaks, dur = VIEW.duration_s;
+  cx.fillStyle = css("--wave");
+  for (let i = 0; i < P.length; i++) { const t = (i / P.length) * dur; if (t < V0 || t > V1) continue;
+    const xx = x(t), w = Math.max(1, W / P.length * dur / (V1 - V0)); cx.fillRect(xx, mid - P[i][1] * (H / 2 - 14), w, (P[i][1] - P[i][0]) * (H / 2 - 14)); }
+  const pxPerBeat = W / ((V1 - V0) / (60 / VIEW.tempo_bpm));
+  const labelEvery = Math.max(1, Math.ceil(36 / (pxPerBeat * (VIEW.beats.length ? 4 : 1))));
+  cx.font = `11px ${css("--mono")}`;
+  for (let i = 0; i < VIEW.beats.length; i++) {
+    const t = VIEW.beats[i]; if (t < V0 || t > V1) continue; const xx = Math.round(x(t)) + 0.5, down = VIEW.beat_in_bar[i] === 1;
+    if (!down && pxPerBeat < 3) continue;
+    if (down && pxPerBeat * 4 < 8 && (VIEW.bars[i] - 1) % labelEvery !== 0) continue;  // keep the waveform readable when zoomed out
+    cx.strokeStyle = down ? css("--down") : css("--beat"); cx.lineWidth = down ? 1.2 : 1;
+    cx.globalAlpha = down ? 0.7 : 1;
+    cx.beginPath(); cx.moveTo(xx, 16); cx.lineTo(xx, H); cx.stroke();
+    cx.globalAlpha = 1;
+    if (down && (VIEW.bars[i] - 1) % labelEvery === 0) { cx.fillStyle = css("--down"); cx.fillText(VIEW.bars[i], xx + 3, 11); }
+  }
+  cx.strokeStyle = css("--splice"); cx.setLineDash([4, 3]); cx.lineWidth = 1.5;
+  for (const s of VIEW.splices) { if (s < V0 || s > V1) continue; const xx = x(s); cx.beginPath(); cx.moveTo(xx, 16); cx.lineTo(xx, H); cx.stroke(); }
+  cx.setLineDash([]);
+  const pt = $("player").currentTime; if (pt >= V0 && pt <= V1) { cx.strokeStyle = css("--ink"); cx.lineWidth = 1.5; cx.beginPath(); cx.moveTo(x(pt), 0); cx.lineTo(x(pt), H); cx.stroke(); }
+}
+function tAt(ev) { const r = cv.getBoundingClientRect(); return V0 + (ev.clientX - r.left) / r.width * (V1 - V0); }
+function beatAt(t) { const B = VIEW.beats; let lo = 0, hi = B.length - 1, k = -1; while (lo <= hi) { const m = (lo + hi) >> 1; if (B[m] <= t) { k = m; lo = m + 1; } else hi = m - 1; } return k; }
+let drag = null;
+cv.addEventListener("mousemove", (ev) => { if (!VIEW) return; const t = tAt(ev);
+  if (drag) { const dt = (drag.x - ev.clientX) / cv.clientWidth * (V1 - V0); let a = drag.v0 + dt, b = drag.v1 + dt; if (a < 0) { b -= a; a = 0; } if (b > VIEW.duration_s) { a -= b - VIEW.duration_s; b = VIEW.duration_s; } V0 = Math.max(0, a); V1 = b; drag.moved = true; draw(); }
+  const k = beatAt(t); $("hover").textContent = k < 0 ? `${t.toFixed(3)} s · before beat 0 (pre-roll)` : `${t.toFixed(3)} s · beat ${k} · bar ${VIEW.bars[k]} beat ${VIEW.beat_in_bar[k]}`; });
+cv.addEventListener("mousedown", (ev) => { drag = { x: ev.clientX, v0: V0, v1: V1, moved: false }; });
+window.addEventListener("mouseup", (ev) => { if (drag && !drag.moved && VIEW && ev.target === cv) { $("player").currentTime = tAt(ev); } drag = null; });
+const zoom = (f) => { if (!VIEW) return; const c = Math.min(Math.max($("player").currentTime || (V0 + V1) / 2, V0), V1), w = Math.min(VIEW.duration_s, Math.max(2, (V1 - V0) * f)); V0 = Math.max(0, c - w / 2); V1 = Math.min(VIEW.duration_s, V0 + w); draw(); };
+$("zin").onclick = () => zoom(0.5); $("zout").onclick = () => zoom(2); $("zfit").onclick = () => { V0 = 0; V1 = VIEW.duration_s; draw(); };
+window.addEventListener("resize", draw);
+(function loop() { if (VIEW && !$("player").paused) draw(); requestAnimationFrame(loop); })();
+
+// chat
+function addEcho(box, r) {
+  if (box.querySelector(".empty")) box.innerHTML = "";
+  const u = document.createElement("div"); u.className = "msg user"; u.textContent = r.user; box.appendChild(u);
+  const a = document.createElement("div"); a.className = "msg agent";
+  if (r.error) a.insertAdjacentHTML("beforeend", `<div class="echo error"><span class="tag">error</span>${escapeHtml(r.error)}</div>`);
+  if (r.reply) { const p = document.createElement("div"); p.textContent = r.reply; a.appendChild(p); }
+  for (const ev of r.events || []) {
+    const kind = { applied: "", undo: "", redo: "", sync: "", proposed: "proposed", error: "error", sections: "sections" }[ev.type] ?? "";
+    const label = { applied: "applied by code", proposed: "proposed, not applied", undo: "undo", redo: "redo", error: "refused by code", sections: "measured sections", sync: "sync rendered" }[ev.type];
+    let body = (ev.echo || []).map(escapeHtml).join("\n");
+    if (ev.type === "error") body = escapeHtml(ev.message);
+    if (ev.type === "sections") body = ev.sections.map((s) => `bars ${s.bars[0]}–${s.bars[1]} (${s.time_s[0]}–${s.time_s[1]} s): ${s.observations.join(", ") || "no flags"}`).map(escapeHtml).join("\n");
+    if (ev.urls && ev.urls.mix) body += `\n<audio controls src="${ev.urls.mix}" style="margin-top:6px"></audio>`;
+    const card = document.createElement("div"); card.className = `echo ${kind}`;
+    card.innerHTML = `<span class="tag">${label}</span>${body}`;
+    if (ev.type === "proposed" && ev.ops && box === $("msgs")) {  // confirm mode: apply exactly what was echoed
+      const btn = document.createElement("button"); btn.className = "primary"; btn.textContent = "Apply";
+      btn.style.cssText = "display:block;margin-top:6px";
+      btn.onclick = async () => {
+        btn.disabled = true;
+        const res = await fetch(`/api/sessions/${SID}/ops`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ops: ev.ops }) });
+        const b = await res.json();
+        if (b.entry) addEcho($("msgs"), b.entry); else addEcho($("msgs"), { user: "[apply]", error: b.error, events: [] });
+        await refresh();
+      };
+      card.appendChild(btn);
+    }
+    a.appendChild(card);
+    for (const w of ev.warnings || []) a.insertAdjacentHTML("beforeend", `<div class="echo warning"><span class="tag">warning</span>${escapeHtml(w)}</div>`);
+  }
+  box.appendChild(a); box.scrollTop = box.scrollHeight;
+}
+async function send() {
+  const m = $("msg").value.trim(); if (!m || !SID) return;
+  $("msg").value = ""; $("send").disabled = true;
+  try { const { job } = await api(`/api/sessions/${SID}/chat`, { method: "POST", body: JSON.stringify({ message: m, confirm: $("confirm").checked }) });
+    const r = await runJob(job, $("edit-status")); addEcho($("msgs"), r); await refresh(); }
+  catch (e) { addEcho($("msgs"), { user: m, error: e.message, events: [] }); }
+  finally { $("send").disabled = false; $("msg").focus(); }
+}
+$("send").addEventListener("click", send); $("msg").addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
+$("d-apply").addEventListener("click", async () => {
+  const op = $("d-op").value, unit = $("d-unit").value, a = +$("d-a").value, b = +$("d-b").value, x = +$("d-x").value;
+  const range = unit === "bars" ? { unit, first_bar: a, last_bar: b } : { unit, start_beat: a, end_beat: b };
+  const o = { op, range };
+  if (op === "repeat") o.total_plays = x; if (op === "gain") o.db = x; if (op === "fade") o.direction = x ? "out" : "in";
+  try {
+    const r = await fetch(`/api/sessions/${SID}/ops`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ops: [o] }) });
+    const body = await r.json();
+    if (body.entry) addEcho($("msgs"), body.entry); else if (body.error) addEcho($("msgs"), { user: "[direct edit]", error: body.error, events: [] });
+    await refresh();
+  } catch (e) { setStatus($("edit-status"), escapeHtml(e.message), "err"); }
+});
+
+// ---------------------------------------------------------------- sync
+$("dosync").addEventListener("click", async () => {
+  $("dosync").disabled = true; $("sync-out").innerHTML = "";
+  try {
+    const body = { a: $("sa").value, b: $("sb").value, start_bar_a: +$("sba").value, start_bar_b: +$("sbb").value, seconds: +$("ssec").value };
+    const { job } = await api("/api/sync", { method: "POST", body: JSON.stringify(body) });
+    const r = await runJob(job, $("sync-status")); const rep = r.report, k = rep.kick_alignment_final;
+    const ok = (v, lim) => v == null ? "" : (v <= lim ? "pass" : "fail");
+    $("sync-out").innerHTML = `<table>
+      <tr><th>Time-stretch ratio (B)</th><td class="num">${rep.time_stretch_ratio.toFixed(6)} · ${rep.track_b.bpm} → ${rep.track_a.bpm} BPM · pitch preserved</td></tr>
+      <tr><th>Alignment</th><td class="num">${escapeHtml(body.b)} bar ${rep.track_b.start_bar} (${rep.track_b.start_s.toFixed(3)} s) → ${escapeHtml(body.a)} bar ${rep.track_a.start_bar} (${rep.track_a.start_s.toFixed(3)} s)</td></tr>
+      <tr><th>Mapping</th><td>${escapeHtml(rep.mapping)}</td></tr>
+      <tr><th>Kick onsets, measured</th><td class="num">median <span class="${ok(k.median_abs_offset_ms, 5)}">${k.median_abs_offset_ms} ms</span> · max <span class="${ok(k.max_abs_offset_ms, 15)}">${k.max_abs_offset_ms} ms</span> · ${k.matched} kicks (targets: ≤ 5 ms, ≤ 15 ms)</td></tr>
+      ${rep.notes.length ? `<tr><th>Notes</th><td>${rep.notes.map(escapeHtml).join("<br>")}</td></tr>` : ""}
+    </table>
+    <div class="tag" style="margin-top:12px">Overlap mix</div><audio controls src="${r.urls.mix}"></audio>
+    <div class="tag" style="margin-top:8px">A only</div><audio controls src="${r.urls.stem_a}"></audio>
+    <div class="tag" style="margin-top:8px">B stretched</div><audio controls src="${r.urls.stem_b}"></audio>`;
+  } catch (e) { /* shown in status */ } finally { $("dosync").disabled = false; }
+});
+
+// ---------------------------------------------------------------- recreate
+let RID = null;
+$("dorec").addEventListener("click", async () => {
+  $("dorec").disabled = true;
+  try { const { job } = await api("/api/recreations", { method: "POST", body: JSON.stringify({ clip: $("clip").value }) });
+    const r = await runJob(job, $("rec-status")); RID = r.recreation; $("rmsgs").innerHTML = ""; await refreshRec(); }
+  catch (e) { } finally { $("dorec").disabled = false; }
+});
+async function refreshRec() {
+  const v = await api(`/api/recreations/${RID}`);
+  $("rec-empty").hidden = true; $("rec-body").hidden = false;
+  $("orig").src = v.original_url; $("page").src = v.page_url; $("open-page").href = v.page_url; $("dl-page").href = `/api/recreations/${RID}/score`;
+  $("rec-tracks").innerHTML = `<tr><th>Track</th><th>Notes</th><th>Level</th><th>State</th><th>Source</th></tr>` + v.tracks.map((t) =>
+    `<tr><td>${escapeHtml(t.name)}</td><td class="num">${t.notes}</td><td class="num">${(+t.gain_db).toFixed(1)} dB</td><td>${t.mute ? "muted" : "audible"}</td><td>${escapeHtml((v.provenance[t.id] || {}).source || "")}</td></tr>`).join("") +
+    `<tr><td>Tempo</td><td class="num" colspan="4">${(+v.tempo_bpm).toFixed(2)} BPM · ${v.bars} bars</td></tr>`;
+  $("rmsg").disabled = $("rsend").disabled = false;
+}
+async function rsend() {
+  const m = $("rmsg").value.trim(); if (!m || !RID) return; $("rmsg").value = ""; $("rsend").disabled = true;
+  try { const { job } = await api(`/api/recreations/${RID}/chat`, { method: "POST", body: JSON.stringify({ message: m }) });
+    const r = await runJob(job, $("rec-status")); addEcho($("rmsgs"), r); await refreshRec(); }
+  catch (e) { addEcho($("rmsgs"), { user: m, error: e.message, events: [] }); } finally { $("rsend").disabled = false; }
+}
+$("rsend").addEventListener("click", rsend); $("rmsg").addEventListener("keydown", (e) => { if (e.key === "Enter") rsend(); });
+
+loadLibrary().catch((e) => { $("llm").textContent = "server unreachable"; $("llm").className = "badge err"; });
+</script>
+</body>
+</html>

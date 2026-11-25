@@ -1,0 +1,4 @@
+> Sync A7 to A1, starting the overlap at A1's bar 33.
+[reference mode, no LLM] A1 is the master; A7 enters at its bar 1 on A1's bar 33
+  [SYNC] SYNC A7 -> A1: A7 bar 1 (0.518 s) lands on A1 bar 33 (62.115 s); time-stretch ratio 1.032253 (128.00 -> 124.00 BPM, pitch preserved); 60.0 s overlap rendered.
+  [SYNC] Measured kick alignment: median 0.79 ms, max 1.91 ms over 124 kicks.

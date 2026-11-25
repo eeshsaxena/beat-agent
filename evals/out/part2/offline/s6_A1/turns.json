@@ -1,0 +1,101 @@
+[
+ {
+  "turn": 1,
+  "user": "Sync A7 to A1, starting the overlap at A1's bar 33.",
+  "reply": "Offline grammar: A7 enters at its bar 1 on A1's bar 33.",
+  "events": [
+   {
+    "type": "sync",
+    "echo": [
+     "SYNC A7 -> A1: A7 bar 1 (0.518 s) lands on A1 bar 33 (62.115 s); time-stretch ratio 1.032253 (128.00 -> 124.00 BPM, pitch preserved); 60.0 s overlap rendered.",
+     "Measured kick alignment: median 0.79 ms, max 1.91 ms over 124 kicks."
+    ],
+    "report": {
+     "track_a": {
+      "start_bar": 33,
+      "start_s": 62.1148,
+      "bpm": 124.0,
+      "grid": "constant"
+     },
+     "track_b": {
+      "start_bar": 1,
+      "start_s": 0.5184,
+      "bpm": 127.999,
+      "grid": "constant",
+      "resampled_from_hz": 48000
+     },
+     "time_stretch_ratio": 1.032253,
+     "time_stretch_ratio_meaning": "output duration / input duration of track B (pitch preserved)",
+     "tempo_change_pct": -3.125,
+     "mapping": "anchored every 16 beats (constant ratio)",
+     "offset_s": 61.5964,
+     "offset_meaning": "B's start-bar downbeat (B time tB) plays at A's start-bar downbeat (A time tA). B time t plays at A time tA + (t - tB) * ratio (+ onset refinement). offset_s = tA - tB.",
+     "duration_s": 60.0,
+     "sample_rate": 44100,
+     "kick_alignment_grid_only": {
+      "kicks_a": 124,
+      "kicks_b": 124,
+      "matched": 124,
+      "median_offset_ms": 0.79,
+      "median_abs_offset_ms": 0.79,
+      "max_abs_offset_ms": 1.91,
+      "p95_abs_offset_ms": 1.37
+     },
+     "onset_refinement_ms": 0.0,
+     "kick_alignment_final": {
+      "kicks_a": 124,
+      "kicks_b": 124,
+      "matched": 124,
+      "median_offset_ms": 0.79,
+      "median_abs_offset_ms": 0.79,
+      "max_abs_offset_ms": 1.91,
+      "p95_abs_offset_ms": 1.37
+     },
+     "notes": []
+    },
+    "paths": {
+     "mix": "C:\\Users\\eeshs\\Downloads\\y\\evals\\out\\part2\\offline\\s6_A1\\sync_A7_to_A1_bar33\\overlap_mix.wav",
+     "stem_b": "C:\\Users\\eeshs\\Downloads\\y\\evals\\out\\part2\\offline\\s6_A1\\sync_A7_to_A1_bar33\\stem_B_stretched.wav",
+     "mix_mp3": "C:\\Users\\eeshs\\Downloads\\y\\evals\\out\\part2\\offline\\s6_A1\\sync_A7_to_A1_bar33\\overlap_mix.mp3"
+    },
+    "warnings": []
+   }
+  ],
+  "error": null,
+  "usage": {
+   "interpreter": "offline"
+  },
+  "tool_calls": [
+   {
+    "tool": "sync_tracks",
+    "input": {
+     "other_track": "A7",
+     "start_bar_this": 33,
+     "start_bar_other": 1
+    }
+   }
+  ],
+  "state_after": {
+   "can_undo": false,
+   "can_redo": false,
+   "history": "  (no edits yet)"
+  },
+  "expected": {
+   "expect": "sync",
+   "why": "A1 is the master; A7 enters at its bar 1 on A1's bar 33"
+  },
+  "interpretation": {
+   "ok": true,
+   "expected": {
+    "other_track": "A7",
+    "start_bar_this": 33,
+    "start_bar_other": 1
+   },
+   "got": {
+    "other_track": "A7",
+    "start_bar_this": 33,
+    "start_bar_other": 1
+   }
+  }
+ }
+]

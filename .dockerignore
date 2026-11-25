@@ -1,0 +1,9 @@
+.venv
+runtime
+evals/out
+testpack/stand-in
+_brief
+_private
+.git
+.env
+__pycache__

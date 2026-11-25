@@ -1,0 +1,8 @@
+# LF everywhere (the Makefile, Dockerfile and shell commands break with CRLF)
+* text=auto eol=lf
+
+*.wav binary
+*.flac binary
+*.mp3 binary
+*.mid binary
+*.zip binary

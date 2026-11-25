@@ -1,0 +1,4 @@
+> Loop the first 4 bars four times, then let the track play on.
+[reference mode, no LLM] bars 1-4 play four times in total, then the track continues
+  [APPLIED] REPEAT beats 0-15 (16 beats, bars 1-4, 0.040-6.897 s) so it plays 4x in total (3 extra copies inserted at 6.897 s, +20.571 s); the track then continues.
+  [APPLIED] Track length 126.469 s -> 147.040 s; grid now 333 beats, bars 1-84.

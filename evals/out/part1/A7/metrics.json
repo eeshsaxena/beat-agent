@@ -1,0 +1,78 @@
+{
+ "id": "A7",
+ "duration_s": 213.0,
+ "analysis_s": 7.36,
+ "realtime_factor": 28.9,
+ "grid_type": "constant",
+ "tempo_bpm": 127.999,
+ "time_signature": "4/4",
+ "n_beats": 448,
+ "n_bars": 112,
+ "pickup_beats": 0,
+ "confidence": 0.948,
+ "onset_calibration_ms": {
+  "shift_ms": -17.7,
+  "end_tilt_ms": -2.8,
+  "windows": 55,
+  "windows_with_clear_onsets": 47,
+  "max_window_offset_ms": 1.0,
+  "windows_disagreeing_with_tracker": "0/28",
+  "extended_beats": {
+   "before": -1,
+   "after": 0
+  }
+ },
+ "tempo_fit": {
+  "sigma_ms": 3.67,
+  "constant_fit": {
+   "bpm": 127.996,
+   "inlier_frac": 1.0,
+   "rms_ms": 8.1,
+   "max_local_drift_ms_raw": 16.62,
+   "covers_tracked_span": true
+  },
+  "onset_alignment": {
+   "shift_ms": -17.7,
+   "end_tilt_ms": -2.8,
+   "windows": 55,
+   "windows_with_clear_onsets": 47,
+   "max_window_offset_ms": 1.0,
+   "windows_disagreeing_with_tracker": "0/28",
+   "extended_beats": {
+    "before": -1,
+    "after": 0
+   }
+  }
+ },
+ "beat_f_70ms": 1.0,
+ "mir_eval_beat_trimmed5s": {
+  "F-measure": 1.0,
+  "Cemgil": 0.9996,
+  "Cemgil Best Metric Level": 0.9996,
+  "Goto": 1.0,
+  "P-score": 1.0,
+  "Correct Metric Level Continuous": 1.0,
+  "Correct Metric Level Total": 1.0,
+  "Any Metric Level Continuous": 1.0,
+  "Any Metric Level Total": 1.0,
+  "Information gain": 1.0
+ },
+ "ref_tempo_bpm": 128.0,
+ "drift": {
+  "grid_beats_in_ref_span": 448,
+  "grid_beats_matched": 448,
+  "ref_beats_without_grid_beat": 0,
+  "max_abs_ms": 1.59,
+  "p95_abs_ms": 1.55,
+  "median_abs_ms": 1.13,
+  "mean_signed_ms": -1.13,
+  "beats_over_10ms": 0,
+  "max_abs_ms_per_minute": {
+   "0-1 min": 1.59,
+   "1-2 min": 1.33,
+   "2-3 min": 1.06,
+   "3-4 min": 0.8
+  }
+ },
+ "downbeat_f_70ms": 1.0
+}

@@ -1,0 +1,847 @@
+{
+ "env": {
+  "pack": "testpack\\stand-in",
+  "cpu": "Intel64 Family 6 Model 186 Stepping 2, GenuineIntel",
+  "threads": 14,
+  "python": "3.12.3",
+  "torch": "2.15.0+cpu",
+  "model_load_s": 0.45
+ },
+ "clips": [
+  {
+   "id": "A1",
+   "duration_s": 358.8,
+   "analysis_s": 11.87,
+   "realtime_factor": 30.2,
+   "grid_type": "constant",
+   "tempo_bpm": 124.0,
+   "time_signature": "4/4",
+   "n_beats": 736,
+   "n_bars": 184,
+   "pickup_beats": 0,
+   "confidence": 0.92,
+   "onset_calibration_ms": {
+    "shift_ms": -30.5,
+    "end_tilt_ms": 0.4,
+    "windows": 91,
+    "windows_with_clear_onsets": 84,
+    "max_window_offset_ms": 0.0,
+    "windows_disagreeing_with_tracker": "0/46",
+    "extended_beats": {
+     "before": 0,
+     "after": -1
+    }
+   },
+   "tempo_fit": {
+    "sigma_ms": 3.0,
+    "constant_fit": {
+     "bpm": 124.0003,
+     "inlier_frac": 0.999,
+     "rms_ms": 12.73,
+     "max_local_drift_ms_raw": 22.53,
+     "covers_tracked_span": true
+    },
+    "onset_alignment": {
+     "shift_ms": -30.5,
+     "end_tilt_ms": 0.4,
+     "windows": 91,
+     "windows_with_clear_onsets": 84,
+     "max_window_offset_ms": 0.0,
+     "windows_disagreeing_with_tracker": "0/46",
+     "extended_beats": {
+      "before": 0,
+      "after": -1
+     }
+    }
+   },
+   "beat_f_70ms": 1.0,
+   "mir_eval_beat_trimmed5s": {
+    "F-measure": 1.0,
+    "Cemgil": 0.9998,
+    "Cemgil Best Metric Level": 0.9998,
+    "Goto": 1.0,
+    "P-score": 1.0,
+    "Correct Metric Level Continuous": 1.0,
+    "Correct Metric Level Total": 1.0,
+    "Any Metric Level Continuous": 1.0,
+    "Any Metric Level Total": 1.0,
+    "Information gain": 1.0
+   },
+   "ref_tempo_bpm": 124.0,
+   "drift": {
+    "grid_beats_in_ref_span": 736,
+    "grid_beats_matched": 736,
+    "ref_beats_without_grid_beat": 0,
+    "max_abs_ms": 0.88,
+    "p95_abs_ms": 0.87,
+    "median_abs_ms": 0.79,
+    "mean_signed_ms": -0.79,
+    "beats_over_10ms": 0,
+    "max_abs_ms_per_minute": {
+     "0-1 min": 0.72,
+     "1-2 min": 0.75,
+     "2-3 min": 0.79,
+     "3-4 min": 0.82,
+     "4-5 min": 0.85,
+     "5-6 min": 0.88
+    }
+   },
+   "downbeat_f_70ms": 1.0
+  },
+  {
+   "id": "A2",
+   "duration_s": 126.5,
+   "analysis_s": 4.53,
+   "realtime_factor": 27.9,
+   "grid_type": "constant",
+   "tempo_bpm": 140.0,
+   "time_signature": "4/4",
+   "n_beats": 285,
+   "n_bars": 72,
+   "pickup_beats": 0,
+   "confidence": 0.937,
+   "onset_calibration_ms": {
+    "shift_ms": -23.4,
+    "end_tilt_ms": -2.4,
+    "windows": 32,
+    "windows_with_clear_onsets": 32,
+    "max_window_offset_ms": 0.5,
+    "windows_disagreeing_with_tracker": "0/16",
+    "extended_beats": {
+     "before": 0,
+     "after": 16
+    }
+   },
+   "tempo_fit": {
+    "sigma_ms": 13.21,
+    "constant_fit": {
+     "bpm": 139.9946,
+     "inlier_frac": 0.771,
+     "rms_ms": 9.98,
+     "max_local_drift_ms_raw": 8.26,
+     "covers_tracked_span": true
+    },
+    "onset_alignment": {
+     "shift_ms": -23.4,
+     "end_tilt_ms": -2.4,
+     "windows": 32,
+     "windows_with_clear_onsets": 32,
+     "max_window_offset_ms": 0.5,
+     "windows_disagreeing_with_tracker": "0/16",
+     "extended_beats": {
+      "before": 0,
+      "after": 16
+     }
+    }
+   },
+   "beat_f_70ms": 0.9948,
+   "mir_eval_beat_trimmed5s": {
+    "F-measure": 0.9945,
+    "Cemgil": 0.9945,
+    "Cemgil Best Metric Level": 0.9945,
+    "Goto": 1.0,
+    "P-score": 0.9891,
+    "Correct Metric Level Continuous": 0.9891,
+    "Correct Metric Level Total": 0.9891,
+    "Any Metric Level Continuous": 0.9891,
+    "Any Metric Level Total": 0.9891,
+    "Information gain": 1.0
+   },
+   "ref_tempo_bpm": 140.0,
+   "drift": {
+    "grid_beats_in_ref_span": 285,
+    "grid_beats_matched": 285,
+    "ref_beats_without_grid_beat": 3,
+    "max_abs_ms": 0.46,
+    "p95_abs_ms": 0.44,
+    "median_abs_ms": 0.28,
+    "mean_signed_ms": -0.28,
+    "beats_over_10ms": 0,
+    "max_abs_ms_per_minute": {
+     "0-1 min": 0.28,
+     "1-2 min": 0.45,
+     "2-3 min": 0.46
+    }
+   },
+   "downbeat_f_70ms": 1.0
+  },
+  {
+   "id": "A3",
+   "duration_s": 170.7,
+   "analysis_s": 5.22,
+   "realtime_factor": 32.7,
+   "grid_type": "variable",
+   "tempo_bpm": 93.016,
+   "time_signature": "4/4",
+   "n_beats": 259,
+   "n_bars": 65,
+   "pickup_beats": 2,
+   "confidence": 0.968,
+   "onset_calibration_ms": {
+    "shift_ms": 2.5,
+    "end_tilt_ms": 21.4,
+    "windows": 22,
+    "windows_with_clear_onsets": 9,
+    "max_window_offset_ms": 50.0,
+    "windows_disagreeing_with_tracker": "4/11"
+   },
+   "tempo_fit": {
+    "sigma_ms": 4.63,
+    "constant_fit": {
+     "bpm": 93.0053,
+     "inlier_frac": 0.419,
+     "rms_ms": 18.46,
+     "max_local_drift_ms_raw": 21.82,
+     "covers_tracked_span": false
+    },
+    "onset_alignment": {
+     "shift_ms": 2.5,
+     "end_tilt_ms": 21.4,
+     "windows": 22,
+     "windows_with_clear_onsets": 9,
+     "max_window_offset_ms": 50.0,
+     "windows_disagreeing_with_tracker": "4/11"
+    },
+    "segments": [
+     {
+      "beats": 19,
+      "bpm": 92.973,
+      "rms_ms": 5.95
+     },
+     {
+      "beats": 16,
+      "bpm": 90.469,
+      "rms_ms": 5.36
+     },
+     {
+      "beats": 20,
+      "bpm": 92.55,
+      "rms_ms": 6.52
+     },
+     {
+      "beats": 15,
+      "bpm": 90.663,
+      "rms_ms": 4.66
+     },
+     {
+      "beats": 19,
+      "bpm": 93.356,
+      "rms_ms": 6.82
+     },
+     {
+      "beats": 16,
+      "bpm": 91.507,
+      "rms_ms": 6.06
+     },
+     {
+      "beats": 19,
+      "bpm": 93.671,
+      "rms_ms": 5.45
+     },
+     {
+      "beats": 18,
+      "bpm": 91.892,
+      "rms_ms": 7.83
+     },
+     {
+      "beats": 18,
+      "bpm": 94.395,
+      "rms_ms": 5.9
+     },
+     {
+      "beats": 18,
+      "bpm": 92.484,
+      "rms_ms": 6.47
+     },
+     {
+      "beats": 20,
+      "bpm": 94.536,
+      "rms_ms": 7.72
+     },
+     {
+      "beats": 15,
+      "bpm": 92.619,
+      "rms_ms": 5.91
+     },
+     {
+      "beats": 18,
+      "bpm": 95.317,
+      "rms_ms": 5.39
+     },
+     {
+      "beats": 16,
+      "bpm": 93.654,
+      "rms_ms": 4.3
+     },
+     {
+      "beats": 12,
+      "bpm": 95.557,
+      "rms_ms": 5.91
+     }
+    ],
+    "onset_alignment_variable_ms": {
+     "median": -9.0,
+     "p10": -13.5,
+     "p90": -3.9
+    }
+   },
+   "beat_f_70ms": 1.0,
+   "mir_eval_beat_trimmed5s": {
+    "F-measure": 1.0,
+    "Cemgil": 0.9949,
+    "Cemgil Best Metric Level": 0.9949,
+    "Goto": 1.0,
+    "P-score": 1.0,
+    "Correct Metric Level Continuous": 1.0,
+    "Correct Metric Level Total": 1.0,
+    "Any Metric Level Continuous": 1.0,
+    "Any Metric Level Total": 1.0,
+    "Information gain": 0.9244
+   },
+   "ref_tempo_bpm": 92.973,
+   "drift": {
+    "grid_beats_in_ref_span": 259,
+    "grid_beats_matched": 259,
+    "ref_beats_without_grid_beat": 0,
+    "max_abs_ms": 20.75,
+    "p95_abs_ms": 8.13,
+    "median_abs_ms": 2.43,
+    "mean_signed_ms": -0.21,
+    "beats_over_10ms": 8,
+    "max_abs_ms_per_minute": {
+     "0-1 min": 7.15,
+     "1-2 min": 12.5,
+     "2-3 min": 20.75
+    }
+   }
+  },
+  {
+   "id": "A4",
+   "duration_s": 144.4,
+   "analysis_s": 4.36,
+   "realtime_factor": 33.1,
+   "grid_type": "constant",
+   "tempo_bpm": 120.0,
+   "time_signature": "4/4",
+   "n_beats": 190,
+   "n_bars": 48,
+   "pickup_beats": 0,
+   "confidence": 0.929,
+   "onset_calibration_ms": {
+    "shift_ms": -36.0,
+    "end_tilt_ms": -14.8,
+    "windows": 24,
+    "windows_with_clear_onsets": 24,
+    "max_window_offset_ms": 0.5,
+    "windows_disagreeing_with_tracker": "0/12",
+    "extended_beats": {
+     "before": -8,
+     "after": -8
+    }
+   },
+   "tempo_fit": {
+    "sigma_ms": 3.0,
+    "constant_fit": {
+     "bpm": 119.9654,
+     "inlier_frac": 1.0,
+     "rms_ms": 9.16,
+     "max_local_drift_ms_raw": 28.1,
+     "covers_tracked_span": true
+    },
+    "onset_alignment": {
+     "shift_ms": -36.0,
+     "end_tilt_ms": -14.8,
+     "windows": 24,
+     "windows_with_clear_onsets": 24,
+     "max_window_offset_ms": 0.5,
+     "windows_disagreeing_with_tracker": "0/12",
+     "extended_beats": {
+      "before": -8,
+      "after": -8
+     }
+    }
+   },
+   "beat_f_70ms": 0.9948,
+   "mir_eval_beat_trimmed5s": {
+    "F-measure": 0.9948,
+    "Cemgil": 0.9947,
+    "Cemgil Best Metric Level": 0.9947,
+    "Goto": 1.0,
+    "P-score": 0.9896,
+    "Correct Metric Level Continuous": 0.9896,
+    "Correct Metric Level Total": 0.9896,
+    "Any Metric Level Continuous": 0.9896,
+    "Any Metric Level Total": 0.9896,
+    "Information gain": 1.0
+   },
+   "ref_tempo_bpm": 120.0,
+   "drift": {
+    "grid_beats_in_ref_span": 190,
+    "grid_beats_matched": 190,
+    "ref_beats_without_grid_beat": 2,
+    "max_abs_ms": 0.56,
+    "p95_abs_ms": 0.56,
+    "median_abs_ms": 0.54,
+    "mean_signed_ms": -0.54,
+    "beats_over_10ms": 0,
+    "max_abs_ms_per_minute": {
+     "0-1 min": 0.53,
+     "1-2 min": 0.55,
+     "2-3 min": 0.56
+    }
+   },
+   "downbeat_f_70ms": 1.0
+  },
+  {
+   "id": "A5",
+   "duration_s": 141.6,
+   "analysis_s": 4.53,
+   "realtime_factor": 31.3,
+   "grid_type": "piecewise",
+   "tempo_bpm": 128.002,
+   "time_signature": "4/4",
+   "n_beats": 289,
+   "n_bars": 73,
+   "pickup_beats": 0,
+   "confidence": 0.95,
+   "onset_calibration_ms": {
+    "shift_ms": -13.7,
+    "end_tilt_ms": -9.4,
+    "windows": 19,
+    "windows_with_clear_onsets": 19,
+    "max_window_offset_ms": 0.5,
+    "windows_disagreeing_with_tracker": "0/10"
+   },
+   "tempo_fit": {
+    "sigma_ms": 4.33,
+    "constant_fit": {
+     "bpm": 127.9697,
+     "inlier_frac": 1.0,
+     "rms_ms": 6.44,
+     "max_local_drift_ms_raw": 18.71,
+     "covers_tracked_span": false
+    },
+    "onset_alignment": {
+     "shift_ms": -13.7,
+     "end_tilt_ms": -9.4,
+     "windows": 19,
+     "windows_with_clear_onsets": 19,
+     "max_window_offset_ms": 0.5,
+     "windows_disagreeing_with_tracker": "0/10"
+    },
+    "segments": [
+     {
+      "beats": 128,
+      "bpm": 119.995,
+      "rms_ms": 2.95,
+      "onset_shift_ms": -17.7
+     },
+     {
+      "beats": 161,
+      "bpm": 127.998,
+      "rms_ms": 3.67,
+      "onset_shift_ms": -15.5
+     }
+    ]
+   },
+   "beat_f_70ms": 0.9983,
+   "mir_eval_beat_trimmed5s": {
+    "F-measure": 0.9982,
+    "Cemgil": 0.998,
+    "Cemgil Best Metric Level": 0.998,
+    "Goto": 1.0,
+    "P-score": 0.9964,
+    "Correct Metric Level Continuous": 0.9964,
+    "Correct Metric Level Total": 0.9964,
+    "Any Metric Level Continuous": 0.9964,
+    "Any Metric Level Total": 0.9964,
+    "Information gain": 1.0
+   },
+   "ref_tempo_bpm": 128.0,
+   "drift": {
+    "grid_beats_in_ref_span": 288,
+    "grid_beats_matched": 288,
+    "ref_beats_without_grid_beat": 0,
+    "max_abs_ms": 1.08,
+    "p95_abs_ms": 1.08,
+    "median_abs_ms": 0.84,
+    "mean_signed_ms": -0.68,
+    "beats_over_10ms": 0,
+    "max_abs_ms_per_minute": {
+     "0-1 min": 1.08,
+     "1-2 min": 1.08,
+     "2-3 min": 0.95
+    }
+   },
+   "downbeat_f_70ms": 0.9931
+  },
+  {
+   "id": "A6",
+   "duration_s": 116.2,
+   "analysis_s": 4.1,
+   "realtime_factor": 28.4,
+   "grid_type": "constant",
+   "tempo_bpm": 68.0,
+   "time_signature": "6/8",
+   "n_beats": 129,
+   "n_bars": 65,
+   "pickup_beats": 0,
+   "confidence": 1.0,
+   "onset_calibration_ms": {
+    "shift_ms": 0.2,
+    "end_tilt_ms": 1.2,
+    "windows": 15,
+    "windows_with_clear_onsets": 15,
+    "max_window_offset_ms": 4.5,
+    "windows_disagreeing_with_tracker": "0/8",
+    "extended_beats": {
+     "before": 0,
+     "after": 0
+    }
+   },
+   "tempo_fit": {
+    "sigma_ms": 3.0,
+    "constant_fit": {
+     "bpm": 68.0011,
+     "inlier_frac": 1.0,
+     "rms_ms": 0.0,
+     "max_local_drift_ms_raw": 0.0,
+     "covers_tracked_span": true
+    },
+    "onset_alignment": {
+     "shift_ms": 0.2,
+     "end_tilt_ms": 1.2,
+     "windows": 15,
+     "windows_with_clear_onsets": 15,
+     "max_window_offset_ms": 4.5,
+     "windows_disagreeing_with_tracker": "0/8",
+     "extended_beats": {
+      "before": 0,
+      "after": 0
+     }
+    },
+    "regrouped_from": {
+     "tracker_level_bpm": 204.0,
+     "grouping": 3
+    }
+   },
+   "beat_f_70ms": 0.9961,
+   "mir_eval_beat_trimmed5s": {
+    "F-measure": 0.9959,
+    "Cemgil": 0.9954,
+    "Cemgil Best Metric Level": 0.9954,
+    "Goto": 1.0,
+    "P-score": 0.9919,
+    "Correct Metric Level Continuous": 0.9919,
+    "Correct Metric Level Total": 0.9919,
+    "Any Metric Level Continuous": 0.9919,
+    "Any Metric Level Total": 0.9919,
+    "Information gain": 1.0
+   },
+   "ref_tempo_bpm": 68.0,
+   "drift": {
+    "grid_beats_in_ref_span": 128,
+    "grid_beats_matched": 128,
+    "ref_beats_without_grid_beat": 0,
+    "max_abs_ms": 1.61,
+    "p95_abs_ms": 1.58,
+    "median_abs_ms": 1.32,
+    "mean_signed_ms": 1.32,
+    "beats_over_10ms": 0,
+    "max_abs_ms_per_minute": {
+     "0-1 min": 1.34,
+     "1-2 min": 1.61
+    }
+   },
+   "downbeat_f_70ms": 0.9922
+  },
+  {
+   "id": "A7",
+   "duration_s": 213.0,
+   "analysis_s": 7.36,
+   "realtime_factor": 28.9,
+   "grid_type": "constant",
+   "tempo_bpm": 127.999,
+   "time_signature": "4/4",
+   "n_beats": 448,
+   "n_bars": 112,
+   "pickup_beats": 0,
+   "confidence": 0.948,
+   "onset_calibration_ms": {
+    "shift_ms": -17.7,
+    "end_tilt_ms": -2.8,
+    "windows": 55,
+    "windows_with_clear_onsets": 47,
+    "max_window_offset_ms": 1.0,
+    "windows_disagreeing_with_tracker": "0/28",
+    "extended_beats": {
+     "before": -1,
+     "after": 0
+    }
+   },
+   "tempo_fit": {
+    "sigma_ms": 3.67,
+    "constant_fit": {
+     "bpm": 127.996,
+     "inlier_frac": 1.0,
+     "rms_ms": 8.1,
+     "max_local_drift_ms_raw": 16.62,
+     "covers_tracked_span": true
+    },
+    "onset_alignment": {
+     "shift_ms": -17.7,
+     "end_tilt_ms": -2.8,
+     "windows": 55,
+     "windows_with_clear_onsets": 47,
+     "max_window_offset_ms": 1.0,
+     "windows_disagreeing_with_tracker": "0/28",
+     "extended_beats": {
+      "before": -1,
+      "after": 0
+     }
+    }
+   },
+   "beat_f_70ms": 1.0,
+   "mir_eval_beat_trimmed5s": {
+    "F-measure": 1.0,
+    "Cemgil": 0.9996,
+    "Cemgil Best Metric Level": 0.9996,
+    "Goto": 1.0,
+    "P-score": 1.0,
+    "Correct Metric Level Continuous": 1.0,
+    "Correct Metric Level Total": 1.0,
+    "Any Metric Level Continuous": 1.0,
+    "Any Metric Level Total": 1.0,
+    "Information gain": 1.0
+   },
+   "ref_tempo_bpm": 128.0,
+   "drift": {
+    "grid_beats_in_ref_span": 448,
+    "grid_beats_matched": 448,
+    "ref_beats_without_grid_beat": 0,
+    "max_abs_ms": 1.59,
+    "p95_abs_ms": 1.55,
+    "median_abs_ms": 1.13,
+    "mean_signed_ms": -1.13,
+    "beats_over_10ms": 0,
+    "max_abs_ms_per_minute": {
+     "0-1 min": 1.59,
+     "1-2 min": 1.33,
+     "2-3 min": 1.06,
+     "3-4 min": 0.8
+    }
+   },
+   "downbeat_f_70ms": 1.0
+  }
+ ],
+ "sync": {
+  "track_a": {
+   "start_bar": 33,
+   "start_s": 62.1148,
+   "bpm": 124.0,
+   "grid": "constant"
+  },
+  "track_b": {
+   "start_bar": 1,
+   "start_s": 0.5184,
+   "bpm": 127.999,
+   "grid": "constant",
+   "resampled_from_hz": 48000
+  },
+  "time_stretch_ratio": 1.032253,
+  "time_stretch_ratio_meaning": "output duration / input duration of track B (pitch preserved)",
+  "tempo_change_pct": -3.125,
+  "mapping": "anchored every 16 beats (constant ratio)",
+  "offset_s": 61.5964,
+  "offset_meaning": "B's start-bar downbeat (B time tB) plays at A's start-bar downbeat (A time tA). B time t plays at A time tA + (t - tB) * ratio (+ onset refinement). offset_s = tA - tB.",
+  "duration_s": 60.0,
+  "sample_rate": 44100,
+  "kick_alignment_grid_only": {
+   "kicks_a": 124,
+   "kicks_b": 124,
+   "matched": 124,
+   "median_offset_ms": 0.81,
+   "median_abs_offset_ms": 0.81,
+   "max_abs_offset_ms": 1.91,
+   "p95_abs_offset_ms": 1.37
+  },
+  "onset_refinement_ms": 0.0,
+  "kick_alignment_final": {
+   "kicks_a": 124,
+   "kicks_b": 124,
+   "matched": 124,
+   "median_offset_ms": 0.81,
+   "median_abs_offset_ms": 0.81,
+   "max_abs_offset_ms": 1.91,
+   "p95_abs_offset_ms": 1.37
+  },
+  "notes": [],
+  "b_downbeats_vs_a_downbeats_ms": {
+   "n": 32,
+   "max_abs": 0.0,
+   "median_abs": 0.0
+  },
+  "reference_check": {
+   "what": "B's reference downbeats mapped through the stretch vs A's reference downbeats",
+   "n": 31,
+   "max_abs_ms": 0.96,
+   "median_abs_ms": 0.82
+  }
+ },
+ "extra_syncs": {
+  "A5": {
+   "track_a": {
+    "start_bar": 33,
+    "start_s": 62.1148,
+    "bpm": 124.0,
+    "grid": "constant"
+   },
+   "track_b": {
+    "start_bar": 1,
+    "start_s": 0.0989,
+    "bpm": 128.002,
+    "grid": "piecewise",
+    "resampled_from_hz": null
+   },
+   "time_stretch_ratio": 0.967741,
+   "time_stretch_ratio_meaning": "output duration / input duration of track B (pitch preserved)",
+   "tempo_change_pct": 3.333,
+   "mapping": "anchored every 4 beats (beat map followed bar by bar)",
+   "offset_s": 62.0158,
+   "offset_meaning": "B's start-bar downbeat (B time tB) plays at A's start-bar downbeat (A time tA). B time t plays at A time tA + (t - tB) * ratio (+ onset refinement). offset_s = tA - tB.",
+   "duration_s": 60.0,
+   "sample_rate": 44100,
+   "kick_alignment_grid_only": {
+    "kicks_a": 124,
+    "kicks_b": 124,
+    "matched": 124,
+    "median_offset_ms": 1.54,
+    "median_abs_offset_ms": 1.54,
+    "max_abs_offset_ms": 2.94,
+    "p95_abs_offset_ms": 2.62
+   },
+   "onset_refinement_ms": 0.0,
+   "kick_alignment_final": {
+    "kicks_a": 124,
+    "kicks_b": 124,
+    "matched": 124,
+    "median_offset_ms": 1.54,
+    "median_abs_offset_ms": 1.54,
+    "max_abs_offset_ms": 2.94,
+    "p95_abs_offset_ms": 2.62
+   },
+   "notes": [],
+   "b_downbeats_vs_a_downbeats_ms": {
+    "n": 32,
+    "max_abs": 0.0,
+    "median_abs": 0.0
+   },
+   "reference_check": {
+    "what": "B's reference downbeats mapped through the stretch vs A's reference downbeats",
+    "n": 31,
+    "max_abs_ms": 0.34,
+    "median_abs_ms": 0.33
+   }
+  },
+  "A3": {
+   "track_a": {
+    "start_bar": 33,
+    "start_s": 62.1148,
+    "bpm": 124.0,
+    "grid": "constant"
+   },
+   "track_b": {
+    "start_bar": 1,
+    "start_s": 1.6486,
+    "bpm": 93.016,
+    "grid": "variable",
+    "resampled_from_hz": null
+   },
+   "time_stretch_ratio": 0.742828,
+   "time_stretch_ratio_meaning": "output duration / input duration of track B (pitch preserved)",
+   "tempo_change_pct": 34.621,
+   "mapping": "anchored every 4 beats (beat map followed bar by bar)",
+   "offset_s": 60.4661,
+   "offset_meaning": "B's start-bar downbeat (B time tB) plays at A's start-bar downbeat (A time tA). B time t plays at A time tA + (t - tB) * ratio (+ onset refinement). offset_s = tA - tB.",
+   "duration_s": 60.0,
+   "sample_rate": 44100,
+   "kick_alignment_grid_only": {
+    "kicks_a": 124,
+    "kicks_b": 124,
+    "matched": 124,
+    "median_offset_ms": -3.0,
+    "median_abs_offset_ms": 4.32,
+    "max_abs_offset_ms": 33.3,
+    "p95_abs_offset_ms": 28.14
+   },
+   "onset_refinement_ms": 0.0,
+   "kick_alignment_final": {
+    "kicks_a": 124,
+    "kicks_b": 124,
+    "matched": 124,
+    "median_offset_ms": -3.0,
+    "median_abs_offset_ms": 4.32,
+    "max_abs_offset_ms": 33.3,
+    "p95_abs_offset_ms": 28.14
+   },
+   "notes": [
+    "Large tempo change for B (35%: 93.0 -> 124.0 BPM). Stretches beyond ~8% start to sound unnatural; a DJ would usually pick a closer track or mix at half/double time."
+   ],
+   "b_downbeats_vs_a_downbeats_ms": {
+    "n": 32,
+    "max_abs": 0.0,
+    "median_abs": 0.0
+   },
+   "reference_check": {
+    "what": "B's reference beats mapped through the stretch vs A's reference beats",
+    "n": 124,
+    "max_abs_ms": 5.64,
+    "median_abs_ms": 1.47
+   }
+  }
+ },
+ "timings": {
+  "A1": {
+   "tracker_s": 9.63,
+   "onsets_s": 1.38,
+   "fit_s": 0.65,
+   "total_s": 11.86
+  },
+  "A2": {
+   "tracker_s": 3.69,
+   "onsets_s": 0.59,
+   "fit_s": 0.18,
+   "total_s": 4.53
+  },
+  "A3": {
+   "tracker_s": 4.33,
+   "onsets_s": 0.67,
+   "fit_s": 0.15,
+   "total_s": 5.22
+  },
+  "A4": {
+   "tracker_s": 3.55,
+   "onsets_s": 0.62,
+   "fit_s": 0.12,
+   "total_s": 4.36
+  },
+  "A5": {
+   "tracker_s": 3.71,
+   "onsets_s": 0.56,
+   "fit_s": 0.2,
+   "total_s": 4.53
+  },
+  "A6": {
+   "tracker_s": 3.07,
+   "onsets_s": 0.62,
+   "fit_s": 0.26,
+   "total_s": 4.09
+  },
+  "A7": {
+   "tracker_s": 5.92,
+   "onsets_s": 0.97,
+   "fit_s": 0.35,
+   "total_s": 7.36
+  }
+ }
+}

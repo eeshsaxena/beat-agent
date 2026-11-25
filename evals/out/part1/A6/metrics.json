@@ -1,0 +1,80 @@
+{
+ "id": "A6",
+ "duration_s": 116.2,
+ "analysis_s": 4.1,
+ "realtime_factor": 28.4,
+ "grid_type": "constant",
+ "tempo_bpm": 68.0,
+ "time_signature": "6/8",
+ "n_beats": 129,
+ "n_bars": 65,
+ "pickup_beats": 0,
+ "confidence": 1.0,
+ "onset_calibration_ms": {
+  "shift_ms": 0.2,
+  "end_tilt_ms": 1.2,
+  "windows": 15,
+  "windows_with_clear_onsets": 15,
+  "max_window_offset_ms": 4.5,
+  "windows_disagreeing_with_tracker": "0/8",
+  "extended_beats": {
+   "before": 0,
+   "after": 0
+  }
+ },
+ "tempo_fit": {
+  "sigma_ms": 3.0,
+  "constant_fit": {
+   "bpm": 68.0011,
+   "inlier_frac": 1.0,
+   "rms_ms": 0.0,
+   "max_local_drift_ms_raw": 0.0,
+   "covers_tracked_span": true
+  },
+  "onset_alignment": {
+   "shift_ms": 0.2,
+   "end_tilt_ms": 1.2,
+   "windows": 15,
+   "windows_with_clear_onsets": 15,
+   "max_window_offset_ms": 4.5,
+   "windows_disagreeing_with_tracker": "0/8",
+   "extended_beats": {
+    "before": 0,
+    "after": 0
+   }
+  },
+  "regrouped_from": {
+   "tracker_level_bpm": 204.0,
+   "grouping": 3
+  }
+ },
+ "beat_f_70ms": 0.9961,
+ "mir_eval_beat_trimmed5s": {
+  "F-measure": 0.9959,
+  "Cemgil": 0.9954,
+  "Cemgil Best Metric Level": 0.9954,
+  "Goto": 1.0,
+  "P-score": 0.9919,
+  "Correct Metric Level Continuous": 0.9919,
+  "Correct Metric Level Total": 0.9919,
+  "Any Metric Level Continuous": 0.9919,
+  "Any Metric Level Total": 0.9919,
+  "Information gain": 1.0
+ },
+ "ref_tempo_bpm": 68.0,
+ "drift": {
+  "grid_beats_in_ref_span": 128,
+  "grid_beats_matched": 128,
+  "ref_beats_without_grid_beat": 0,
+  "max_abs_ms": 1.61,
+  "p95_abs_ms": 1.58,
+  "median_abs_ms": 1.32,
+  "mean_signed_ms": 1.32,
+  "beats_over_10ms": 0,
+  "max_abs_ms_per_minute": {
+   "0-1 min": 1.34,
+   "1-2 min": 1.61
+  }
+ },
+ "downbeat_f_70ms": 0.9922
+}

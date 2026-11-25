@@ -1,0 +1,3 @@
+> Chop out the boring part.
+[reference mode, no LLM] 'boring' is subjective: show measured candidate sections and ask; no edit
+  [measured 6 sections]

@@ -1,0 +1,212 @@
+{
+ "schema": "beat-agent/score@1",
+ "title": "P1",
+ "tempo_bpm": 96.0,
+ "time_signature": [
+  4,
+  4
+ ],
+ "beats_per_bar": 4,
+ "bars": 2,
+ "loop_beats": 8,
+ "master_gain_db": -9.0,
+ "source": {
+  "file": "P1.wav",
+  "duration_s": 5.0,
+  "first_downbeat_s": 0.0001,
+  "exact_loop": true
+ },
+ "tracks": [
+  {
+   "id": "drums",
+   "name": "Drums",
+   "kind": "drums",
+   "gain_db": 0.0,
+   "mute": false,
+   "patch": {
+    "f_start": 158.26904296875,
+    "f_end": 56.524658203125,
+    "sweep": 0.06,
+    "decay": 0.22,
+    "click": 0.3,
+    "tone": 185.0,
+    "noise_hz": 3500.0,
+    "hp_hz": 7000.0,
+    "open_decay": 0.18
+   },
+   "notes": [
+    {
+     "start": 0.4937,
+     "duration": 0.25,
+     "pitch": 42,
+     "velocity": 0.489
+    },
+    {
+     "start": 0.7491,
+     "duration": 0.25,
+     "pitch": 36,
+     "velocity": 0.826
+    },
+    {
+     "start": 0.9999,
+     "duration": 0.25,
+     "pitch": 38,
+     "velocity": 0.947
+    },
+    {
+     "start": 1.7499,
+     "duration": 0.25,
+     "pitch": 38,
+     "velocity": 0.507
+    },
+    {
+     "start": 2.003,
+     "duration": 0.25,
+     "pitch": 42,
+     "velocity": 0.59
+    },
+    {
+     "start": 2.4952,
+     "duration": 0.25,
+     "pitch": 42,
+     "velocity": 0.49
+    },
+    {
+     "start": 2.4952,
+     "duration": 0.25,
+     "pitch": 36,
+     "velocity": 1.0
+    },
+    {
+     "start": 2.9898,
+     "duration": 0.25,
+     "pitch": 42,
+     "velocity": 0.573
+    },
+    {
+     "start": 2.9898,
+     "duration": 0.25,
+     "pitch": 38,
+     "velocity": 0.956
+    },
+    {
+     "start": 3.9999,
+     "duration": 0.25,
+     "pitch": 42,
+     "velocity": 0.561
+    },
+    {
+     "start": 3.9999,
+     "duration": 0.25,
+     "pitch": 36,
+     "velocity": 0.996
+    },
+    {
+     "start": 4.5038,
+     "duration": 0.25,
+     "pitch": 42,
+     "velocity": 0.516
+    },
+    {
+     "start": 5.0007,
+     "duration": 0.25,
+     "pitch": 38,
+     "velocity": 1.0
+    },
+    {
+     "start": 5.4976,
+     "duration": 0.25,
+     "pitch": 42,
+     "velocity": 0.452
+    },
+    {
+     "start": 5.4976,
+     "duration": 0.25,
+     "pitch": 36,
+     "velocity": 0.997
+    },
+    {
+     "start": 6.0015,
+     "duration": 0.25,
+     "pitch": 42,
+     "velocity": 0.583
+    },
+    {
+     "start": 6.0015,
+     "duration": 0.25,
+     "pitch": 36,
+     "velocity": 0.803
+    },
+    {
+     "start": 6.4984,
+     "duration": 0.25,
+     "pitch": 42,
+     "velocity": 0.5
+    },
+    {
+     "start": 6.7538,
+     "duration": 0.25,
+     "pitch": 36,
+     "velocity": 0.844
+    },
+    {
+     "start": 6.9976,
+     "duration": 0.25,
+     "pitch": 38,
+     "velocity": 0.912
+    },
+    {
+     "start": 7.4968,
+     "duration": 0.25,
+     "pitch": 42,
+     "velocity": 0.594
+    },
+    {
+     "start": 7.7522,
+     "duration": 0.25,
+     "pitch": 38,
+     "velocity": 0.496
+    },
+    {
+     "start": 7.9991,
+     "duration": 0.25,
+     "pitch": 42,
+     "velocity": 0.472
+    },
+    {
+     "start": 7.9991,
+     "duration": 0.25,
+     "pitch": 36,
+     "velocity": 0.99
+    }
+   ]
+  }
+ ],
+ "provenance": {
+  "grid": {
+   "tempo_bpm": 96.0,
+   "beats_per_bar": 4,
+   "time_signature": [
+    4,
+    4
+   ],
+   "bars": 2,
+   "loop_beats": 8,
+   "first_downbeat_s": 0.00010998555370110326,
+   "exact_loop": true,
+   "tracker_tempo_bpm": 96.0026768129878,
+   "grid_type": "constant",
+   "clip_duration_s": 5.0
+  },
+  "stem_level_db_vs_mix": {
+   "drums": -0.0,
+   "bass": -55.1,
+   "other": -35.7,
+   "vocals": -64.0
+  },
+  "drums": {
+   "source": "demucs drums stem",
+   "hits": 24
+  }
+ }
+}

@@ -1,0 +1,40 @@
+{
+ "id": "P4",
+ "tempo_bpm": 123.9999,
+ "bars": 8,
+ "exact_loop": true,
+ "first_downbeat_s": -0.0008,
+ "loop_s": 15.4839,
+ "tracks": {
+  "drums": 133,
+  "bass": 37,
+  "keys": 200
+ },
+ "build_s": 27.4,
+ "render_s": 8.8,
+ "render": {
+  "wav": "C:\\Users\\eeshs\\Downloads\\y\\evals\\out\\part3\\P4\\render.wav",
+  "seconds": 32.468,
+  "loop_seconds": 15.483883454744722,
+  "loops": 2,
+  "peak": 1.0,
+  "network_requests": [],
+  "page_errors": [],
+  "console": []
+ },
+ "stems_db": {
+  "drums": -0.3,
+  "bass": -14.1,
+  "other": -18.8,
+  "vocals": -62.8
+ },
+ "render_onset_timing": {
+  "f": 0.9216,
+  "p": 0.8844,
+  "r": 0.962,
+  "ref": 342,
+  "est": 372,
+  "median_abs_offset_ms": 8.63,
+  "mean_signed_offset_ms": -0.23
+ }
+}

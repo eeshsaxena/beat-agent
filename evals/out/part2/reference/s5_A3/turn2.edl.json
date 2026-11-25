@@ -1,0 +1,58 @@
+{
+ "schema": "beat-agent/edl@1",
+ "source": {
+  "file": "A3.flac",
+  "sample_rate": 44100,
+  "subtype": "PCM_16",
+  "duration_s": 170.728503
+ },
+ "conventions": "Ops address the grid at the start of their turn: beats 0-based half-open, bars 1-based inclusive (see the grid JSON). Splices use a 10 ms equal-power crossfade just before the boundary; piece lengths are exact, so the grid does not move.",
+ "history": [
+  {
+   "step": 1,
+   "label": "REMOVE beats 0-7 (8 beats, bars 0-2, 0.353-5.518 s)",
+   "ops": [
+    {
+     "op": "remove",
+     "range": {
+      "unit": "beats",
+      "start_beat": 0,
+      "end_beat": 8
+     }
+    }
+   ],
+   "echo": [
+    "REMOVE beats 0-7 (8 beats, bars 0-2, 0.353-5.518 s): 5.165 s cut; what followed now starts at 0.353 s.",
+    "Track length 170.729 s -> 165.563 s; grid now 251 beats, bars 1-63."
+   ],
+   "warnings": [
+    "remove range beats 0-7 (8 beats, bars 0-2, 0.353-5.518 s) is not whole bars, so the bar lines after it shift; the new grid keeps each beat's original position-in-bar label."
+   ],
+   "active": true
+  }
+ ],
+ "timeline": [
+  {
+   "out_start_s": 0.0,
+   "out_end_s": 0.352653,
+   "src_start_s": 0.0,
+   "src_end_s": 0.352653,
+   "src_start_sample": 0,
+   "src_end_sample": 15552,
+   "ramps": []
+  },
+  {
+   "out_start_s": 0.352653,
+   "out_end_s": 165.563333,
+   "src_start_s": 5.517823,
+   "src_end_s": 170.728503,
+   "src_start_sample": 243336,
+   "src_end_sample": 7529127,
+   "ramps": []
+  }
+ ],
+ "splices_s": [
+  0.352653
+ ],
+ "duration_s": 165.563333
+}

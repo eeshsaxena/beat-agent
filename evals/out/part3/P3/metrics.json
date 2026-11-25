@@ -1,0 +1,61 @@
+{
+ "id": "P3",
+ "tempo_bpm": 84.0,
+ "bars": 8,
+ "exact_loop": true,
+ "first_downbeat_s": 0.0005,
+ "loop_s": 22.8571,
+ "tracks": {
+  "keys": 123
+ },
+ "build_s": 39.7,
+ "render_s": 4.6,
+ "render": {
+  "wav": "C:\\Users\\eeshs\\Downloads\\y\\evals\\out\\part3\\P3\\render.wav",
+  "seconds": 47.214,
+  "loop_seconds": 22.857142857142858,
+  "loops": 2,
+  "peak": 0.608,
+  "network_requests": [],
+  "page_errors": [],
+  "console": []
+ },
+ "stems_db": {
+  "drums": -56.4,
+  "bass": -59.0,
+  "other": 0.0,
+  "vocals": -60.7
+ },
+ "reference": {
+  "pitched_note_f": {
+   "f": 0.7783,
+   "p": 0.6423,
+   "r": 0.9875,
+   "ref": 80,
+   "est": 123
+  },
+  "all_notes_note_f": {
+   "f": 0.7783,
+   "p": 0.6423,
+   "r": 0.9875,
+   "ref": 80,
+   "est": 123
+  },
+  "score_timing_vs_reference_ms": {
+   "matched": 79,
+   "of": 80,
+   "median_abs": 0.29,
+   "mean_signed": 0.12,
+   "p90_abs": 0.51
+  }
+ },
+ "render_onset_timing": {
+  "f": 0.8318,
+  "p": 0.9614,
+  "r": 0.733,
+  "ref": 543,
+  "est": 414,
+  "median_abs_offset_ms": 9.36,
+  "mean_signed_offset_ms": -0.87
+ }
+}

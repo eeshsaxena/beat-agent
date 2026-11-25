@@ -1,0 +1,98 @@
+{
+ "id": "P1",
+ "tempo_bpm": 96.0,
+ "bars": 2,
+ "exact_loop": true,
+ "first_downbeat_s": 0.0001,
+ "loop_s": 5.0,
+ "tracks": {
+  "drums": 24
+ },
+ "build_s": 17.8,
+ "render_s": 5.5,
+ "render": {
+  "wav": "C:\\Users\\eeshs\\Downloads\\y\\evals\\out\\part3\\P1\\render.wav",
+  "seconds": 11.5,
+  "loop_seconds": 5,
+  "loops": 2,
+  "peak": 0.4848,
+  "network_requests": [],
+  "page_errors": [],
+  "console": []
+ },
+ "stems_db": {
+  "drums": -0.0,
+  "bass": -55.1,
+  "other": -35.7,
+  "vocals": -64.0
+ },
+ "reference": {
+  "drums_any_class": {
+   "f": 0.8889,
+   "p": 1.0,
+   "r": 0.8,
+   "ref": 30,
+   "est": 24
+  },
+  "drums_note_f": {
+   "f": 0.8519,
+   "p": 0.9583,
+   "r": 0.7667,
+   "ref": 30,
+   "est": 24
+  },
+  "drums_per_class": {
+   "kick": {
+    "f": 1.0,
+    "p": 1.0,
+    "r": 1.0,
+    "ref": 7,
+    "est": 7
+   },
+   "snare": {
+    "f": 0.9231,
+    "p": 1.0,
+    "r": 0.8571,
+    "ref": 7,
+    "est": 6
+   },
+   "closed hat": {
+    "f": 0.7692,
+    "p": 0.9091,
+    "r": 0.6667,
+    "ref": 15,
+    "est": 11
+   },
+   "open hat": {
+    "f": 0.0,
+    "p": null,
+    "r": 0.0,
+    "ref": 1,
+    "est": 0
+   }
+  },
+  "all_notes_note_f": {
+   "f": 0.8519,
+   "p": 0.9583,
+   "r": 0.7667,
+   "ref": 30,
+   "est": 24
+  },
+  "score_timing_vs_reference_ms": {
+   "matched": 23,
+   "of": 30,
+   "median_abs": 0.87,
+   "mean_signed": -0.88,
+   "p90_abs": 2.6
+  }
+ },
+ "render_onset_timing": {
+  "f": 0.75,
+  "p": 0.8947,
+  "r": 0.6456,
+  "ref": 79,
+  "est": 57,
+  "median_abs_offset_ms": 10.43,
+  "mean_signed_offset_ms": 2.84
+ }
+}

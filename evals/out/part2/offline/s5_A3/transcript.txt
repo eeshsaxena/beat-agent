@@ -1,0 +1,9 @@
+> Cut beat 0 to beat 8.
+Offline grammar read it as: beats 0 to 8 = beats 0-7 (end exclusive).
+  [APPLIED] REMOVE beats 0-7 (8 beats, bars 0-2, 0.353-5.518 s): 5.165 s cut; what followed now starts at 0.353 s.
+  [APPLIED] Track length 170.729 s -> 165.563 s; grid now 251 beats, bars 1-63.
+  [warning] remove range beats 0-7 (8 beats, bars 0-2, 0.353-5.518 s) is not whole bars, so the bar lines after it shift; the new grid keeps each beat's original position-in-bar label.
+
+> Delete bars 200–210.
+Offline grammar read it as: bars 200-210 (inclusive).
+  [refused by code] Bars 200-210 are out of range: this track has bars 1-63 plus a pickup (bar 0) (165.6 s at about 93.0 BPM).

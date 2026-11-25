@@ -1,0 +1,13 @@
+services:
+  beat-agent:
+    build: .
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./evals/results:/app/evals/results
+      - ./evals/out:/app/evals/out

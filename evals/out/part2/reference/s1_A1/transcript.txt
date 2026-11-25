@@ -1,0 +1,18 @@
+> Cut beat 16–32 and repeat it twice.
+[reference mode, no LLM] take beats 16-31 and play them twice in total, in place
+  [APPLIED] REPEAT beats 16-31 (16 beats, bars 5-8, 7.921-15.663 s) so it plays 2x in total (1 extra copy inserted at 15.663 s, +7.742 s); the track then continues.
+  [APPLIED] Track length 358.809 s -> 366.551 s; grid now 752 beats, bars 1-188.
+
+> Now fade out the last 8 beats.
+[reference mode, no LLM] the last 8 beats of the current (edited) track, to the end of the file
+  [APPLIED] FADE OUT (equal-power) over beats 744-751 (8 beats, bars 187-188, 360.179-366.551 s).
+  [APPLIED] Track length 366.551 s -> 366.551 s; grid now 752 beats, bars 1-188.
+
+> Undo.
+[reference mode, no LLM] undo the fade
+  [UNDO] Undid: FADE OUT (equal-power) over beats 744-751 (8 beats, bars 187-188, 360.179-366.551 s). The track is back to 366.551 s, 752 beats, bars 1-188.
+
+> Remove bar 5.
+[reference mode, no LLM] bar 5 of the current grid (the first bar of the repeated section)
+  [APPLIED] REMOVE beats 16-19 (4 beats, bar 5, 7.921-9.857 s): 1.935 s cut; what followed now starts at 7.921 s.
+  [APPLIED] Track length 366.551 s -> 364.615 s; grid now 748 beats, bars 1-187.

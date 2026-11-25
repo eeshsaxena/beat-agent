@@ -1,0 +1,95 @@
+{
+ "schema": "beat-agent/edl@1",
+ "source": {
+  "file": "A2.wav",
+  "sample_rate": 48000,
+  "subtype": "PCM_16",
+  "duration_s": 126.468563
+ },
+ "conventions": "Ops address the grid at the start of their turn: beats 0-based half-open, bars 1-based inclusive (see the grid JSON). Splices use a 10 ms equal-power crossfade just before the boundary; piece lengths are exact, so the grid does not move.",
+ "history": [
+  {
+   "step": 1,
+   "label": "REPEAT beats 0-15 (16 beats, bars 1-4, 0.040-6.897 s) so it plays 4x in total (3 extra copies inserted at 6.897 s, +20.571 s); the track then continues",
+   "ops": [
+    {
+     "op": "repeat",
+     "range": {
+      "unit": "bars",
+      "first_bar": 1,
+      "last_bar": 4
+     },
+     "total_plays": 4
+    }
+   ],
+   "echo": [
+    "REPEAT beats 0-15 (16 beats, bars 1-4, 0.040-6.897 s) so it plays 4x in total (3 extra copies inserted at 6.897 s, +20.571 s); the track then continues.",
+    "Track length 126.469 s -> 147.040 s; grid now 333 beats, bars 1-84."
+   ],
+   "warnings": [],
+   "active": true
+  }
+ ],
+ "timeline": [
+  {
+   "out_start_s": 0.0,
+   "out_end_s": 0.039896,
+   "src_start_s": 0.0,
+   "src_end_s": 0.039896,
+   "src_start_sample": 0,
+   "src_end_sample": 1915,
+   "ramps": []
+  },
+  {
+   "out_start_s": 0.039896,
+   "out_end_s": 6.897021,
+   "src_start_s": 0.039896,
+   "src_end_s": 6.897021,
+   "src_start_sample": 1915,
+   "src_end_sample": 331057,
+   "ramps": []
+  },
+  {
+   "out_start_s": 6.897021,
+   "out_end_s": 13.754146,
+   "src_start_s": 0.039896,
+   "src_end_s": 6.897021,
+   "src_start_sample": 1915,
+   "src_end_sample": 331057,
+   "ramps": []
+  },
+  {
+   "out_start_s": 13.754146,
+   "out_end_s": 20.611271,
+   "src_start_s": 0.039896,
+   "src_end_s": 6.897021,
+   "src_start_sample": 1915,
+   "src_end_sample": 331057,
+   "ramps": []
+  },
+  {
+   "out_start_s": 20.611271,
+   "out_end_s": 27.468396,
+   "src_start_s": 0.039896,
+   "src_end_s": 6.897021,
+   "src_start_sample": 1915,
+   "src_end_sample": 331057,
+   "ramps": []
+  },
+  {
+   "out_start_s": 27.468396,
+   "out_end_s": 147.039938,
+   "src_start_s": 6.897021,
+   "src_end_s": 126.468563,
+   "src_start_sample": 331057,
+   "src_end_sample": 6070491,
+   "ramps": []
+  }
+ ],
+ "splices_s": [
+  6.897021,
+  13.754146,
+  20.611271
+ ],
+ "duration_s": 147.039938
+}
