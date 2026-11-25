@@ -30,7 +30,7 @@ All numbers come from the synthetic stand-in pack (`testpack/`), unless you poin
 | 2 | `out/part2/<session>/` (live), `out/part2/offline/<session>/`, `out/part2/reference/<session>/` | `turn<N>.wav|flac` (edited audio at the input's format), `turn<N>.edl.json` (the edit decision list: every turn's ops and echo, plus the timeline of source pieces), `turn<N>.grid.json`, `turn<N>.click_audition` (`.mp3`, + `.wav`), `turn<N>.mp3`, `transcript.txt`, `turns.json`, and for session 6 the sync render |
 | 3 | `out/part3/<ID>/` | `score.json`, `page.html` (open it in a browser), `render.wav` (2 loops from the headless offline render), `metrics.json` |
 
-Full-resolution WAV/FLAC files are not committed (a 24-bit 6-minute edit is ~97 MB). `make evals` regenerates them deterministically, and `python scripts/package_artifacts.py` zips them with the stand-in pack for a GitHub release. `python scripts/check_claims.py` checks that every number the README states matches these result files.
+Full-resolution WAV/FLAC files are not committed (a 24-bit 6-minute edit is ~97 MB). `make evals` regenerates them deterministically, and `python scripts/package_artifacts.py` zips them with the stand-in pack for the [v1.0 release](https://github.com/eeshsaxena/beat-agent/releases/tag/v1.0), where they are attached. `python scripts/check_claims.py` checks that every number the README states matches these result files.
 
 ## What has been listened to
 

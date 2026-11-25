@@ -96,7 +96,7 @@ Setup also downloads:
 | Note F vs reference MIDI | P1 drums 0.85; P2 drums 0.89, bass 0.98; P3 piano 0.78. Score timing vs MIDI: 0.3–1.1 ms median. | same |
 | Chat changes to the recreation, per-track mixer | The mixer works. "Mute the drums", "make the bass brighter" and "play it at 140" work through the offline grammar (tested in the app). **Untested through the live LLM.** | `beatagent/recreate_agent.py`, `beatagent/offline.py` |
 | `docker compose up` | **Written but not built here** (no Docker on the build machine). A CI workflow can build it on demand. | `Dockerfile`, `.github/workflows/ci.yml` |
-| Full-resolution artefacts | In the repo: every grid, EDL, report, score, page, Part 3 render and an MP3 of every audio file. Full-resolution edits and stems: `make package` builds release zips (616 MB plus a 238 MB stand-in pack); `make evals` regenerates them deterministically. | `evals/README.md` |
+| Full-resolution artefacts | In the repo: every grid, EDL, report, score, page, Part 3 render and an MP3 of every audio file. Full-resolution edits, stems and the stand-in pack are attached to the [v1.0 release](https://github.com/eeshsaxena/beat-agent/releases/tag/v1.0) (built by `make package`); `make evals` regenerates them deterministically. | `evals/README.md` |
 | Real test pack | **Missing**: it was not provided; the loader is ready | `evals/pack.py` |
 
 ## Results (stand-in pack)
