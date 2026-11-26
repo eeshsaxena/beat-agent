@@ -24,7 +24,7 @@ The brief's test pack (A1–A7 with beat and downbeat annotations, P1–P4 with 
   * a constant grid accepted only when every local window of onsets agrees, and the tracker agrees wherever it is confident.
 * **Why:** I measured the raw tracker on the stand-in.
   * Its beats were 8 ms late in kick-and-hat sections but 35–42 ms late wherever offbeat bass and sidechained pads played. The lag depends on the arrangement, which no constant correction fixes.
-  * Raw Beat This! drifts 39–63 ms on the constant clips; with onset alignment, A1's max drift over 6 minutes is 0.88 ms.
+  * Raw Beat This! drifts 21–63 ms on the constant clips; with onset alignment, A1's max drift over 6 minutes is 0.88 ms.
   * librosa scores beat F 0.23–1.0.
 * **Trade-off:** phase precision depends on clear percussive onsets. Without them (pads, rubato) the grid falls back to the tracker's own placement, with its lag. The post-processing is also more code to trust than calling the model's own peak picking.
 * **Would change my mind:** real annotations showing that annotators tap later than the physical attack. Then the onset step would need a calibrated offset.

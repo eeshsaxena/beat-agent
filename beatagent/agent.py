@@ -102,9 +102,11 @@ class EditAgent:
                  schema_with_defs({"reading": _READING, "ops": _ops_schema}, ["reading", "ops"], _DEFS), self._propose),
             Tool("undo", "Undo the most recent edit turn.", schema_with_defs({}, []), self._undo),
             Tool("redo", "Redo the most recently undone edit turn.", schema_with_defs({}, []), self._redo),
-            Tool("find_sections", "Measure the track's sections (bars, seconds, loudness, low end, onset density, "
-                                  "repetitiveness). Use for subjective targets such as 'the boring part' before asking "
-                                  "the user to choose.", schema_with_defs({}, []), self._sections),
+            Tool("find_sections", "Measure the track's sections: bars, seconds, energy per band (sub, low-mid, mid, "
+                                  "presence, air) relative to the whole track, and how repetitive the bars are, with "
+                                  "plain observations (no kick, thin arrangement, intro, outro). Use for subjective "
+                                  "targets such as 'the boring part' before asking the user to choose.",
+                 schema_with_defs({}, []), self._sections),
         ]
         if self.library:
             tools.append(Tool(

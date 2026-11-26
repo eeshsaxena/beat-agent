@@ -19,7 +19,7 @@ Without a working API key, the app falls back to an **offline grammar** ([`beata
 
 ## Run it
 
-You need Python 3.12, about 3 GB of disk for packages and models, and an `ANTHROPIC_API_KEY` for the chat parts.
+You need Python 3.12 and about 3 GB of disk for packages and models. An `ANTHROPIC_API_KEY` enables the LLM interpreter; without one, chat uses the offline grammar and says so.
 
 ```bash
 cp .env.example .env        # add your ANTHROPIC_API_KEY
@@ -27,7 +27,7 @@ make demo                   # setup (first run only) -> all evals -> web app on 
 ```
 
 * **Without make** (e.g. Windows): `python scripts/setup.py`, then `.venv\Scripts\python -m beatagent.cli demo`.
-* **Docker:** `docker compose up`. See the status table: the image has not been built on my machine.
+* **Docker:** `docker compose up`. The image builds in CI; a full `up` hasn't been run in a container (see the status table).
 
 | Command | What it does |
 |---|---|
@@ -58,7 +58,7 @@ Setup also downloads:
            + onset-aligned       downbeats, metre     pre-beat crossfades; grid derived from pieces
            tempo model                                         │
                                                                ├──► click.py  (audition)
-                                                               └──► sync.py   (Rubber Band R3, anchored per bar)
+                                                               └──► sync.py   (Rubber Band R3, pinned at bar anchors)
 
  clip ──► recreate.py: loop grid (tracker) · Demucs stems · drum onsets + classifier · Basic Pitch
           └──► score.json ──► webaudio/template.html (fixed synth engine; score embedded as data; CSP: no network)
@@ -88,7 +88,7 @@ Setup also downloads:
 | Speed | 6-minute track in 12 s on a laptop CPU, also 12 s on 4 threads (target 60 s) | same |
 | Two-track sync | A7 → A1: measured kick onsets median 0.8 ms, max 1.9 ms (targets 5 and 15 ms). Variable-tempo partners also work; stretches over 8% are flagged. | `evals/results/part1.md` |
 | Typed edit ops, echo, clean splices, sample rate and bit depth kept, grid stays true, undo/redo | Works: all brief sessions run through the engine (reference mode) plus unit tests | `evals/results/part2_reference.md`, `tests/` |
-| Chat sessions from the brief through the live LLM | **Pending.** The API key on the build machine was rejected (401). Agent, recording, replay and answer-key grading are written. | `evals/results/part2.md` after a live run |
+| Chat sessions from the brief through the live LLM | **Pending.** The API key on the build machine was rejected (401). Agent, recording, replay and answer-key grading are written. | written to `evals/results/part2.md` by a live run (not present yet) |
 | Same sessions through the offline grammar | 10/10 turns match the answer key. I wrote the grammar with these commands in view, so this shows the fallback works, not that it generalises. Unit tests cover other phrasings and refusals. | `evals/results/part2_offline.md`, `tests/test_offline.py` |
 | Edits on a variable-tempo grid | Works (A3 live band, A5 tempo change in reference mode) | same |
 | Preview player with waveform and grid; direct edits; "confirm before applying" mode | Works. In confirm mode, edits are proposed with their exact echo and applied only on the user's click; this is enforced in code. | web app, Edit tab |
@@ -130,7 +130,7 @@ Setup also downloads:
 
 ## Top three problems I know about
 
-1. **Every number comes from synthetic audio.** The stand-in has exact timing and clean attacks, so real recordings will score lower. The degraded-copy stress tests hold up (drift ≤ 1.34 ms), but they don't replace real music. Onset alignment needs clear percussive onsets; without them the grid keeps the tracker's own placement, which lagged 13–36 ms behind the onsets on this pack (see `onset_alignment.shift_ms` in each grid).
+1. **Every number comes from synthetic audio.** The stand-in has exact timing and clean attacks, so real recordings will score lower. The degraded-copy stress tests hold up (drift ≤ 1.34 ms), but they don't replace real music. Onset alignment needs clear percussive onsets; without them the grid keeps the tracker's own placement. On this pack that placement lagged the onsets by 15–36 ms on five of the seven clips and by ~0 on the live band and the 6/8 clip (see `analysis.fit.onset_alignment` in each grid JSON).
 2. **Drum transcription is a hand-tuned rule classifier, tuned on the same P1/P2 it is scored on.** Expect overfitting. Open hats are missed, and hats under snares can't be separated by band energy (measured: the snare's noise dominates). A trained drum transcription model is the fix.
 3. **Polyphonic transcription (P3) is the weakest part.** Basic Pitch reports harmonics and decays as notes (precision 0.64, recall 0.99). Timbre is a few measured numbers (filter cutoff, kick pitch) feeding generic synth voices.
 
