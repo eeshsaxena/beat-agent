@@ -1,0 +1,4 @@
+> Repeat the last bar before the tempo change twice.
+I've repeated bar 32 so it plays twice in total right before the tempo change.
+  [APPLIED] REPEAT beats 124-127 (4 beats, bar 32, 62.099-64.100 s) so it plays 2x in total (1 extra copy inserted at 64.100 s, +2.001 s); the track then continues.
+  [APPLIED] Track length 141.600 s -> 143.601 s; grid now 293 beats, bars 1-74.

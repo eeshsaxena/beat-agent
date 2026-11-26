@@ -13,7 +13,7 @@
  "build_s": 27.4,
  "render_s": 8.8,
  "render": {
-  "wav": "C:\\Users\\eeshs\\Downloads\\y\\evals\\out\\part3\\P4\\render.wav",
+  "wav": "evals/out/part3/P4/render.wav",
   "seconds": 32.468,
   "loop_seconds": 15.483883454744722,
   "loops": 2,

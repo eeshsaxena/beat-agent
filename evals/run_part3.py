@@ -24,6 +24,7 @@ from beatagent import audio_io, onsets, recreate
 from beatagent import score as S
 from beatagent.webaudio.render import render_page
 from evals import pack
+from evals.run_part2 import repo_relative
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "evals" / "out" / "part3"
@@ -126,7 +127,8 @@ def eval_clip(cid: str, use_sep: bool) -> dict:
     row["render_onset_timing"] = {**(_f(orig_on, ren_on) or {}),
                                   "median_abs_offset_ms": round(float(np.median(np.abs(off[ok]))), 2) if ok.any() else None,
                                   "mean_signed_offset_ms": round(float(np.mean(off[ok])), 2) if ok.any() else None}
-    (d / "metrics.json").write_text(json.dumps(row, indent=1, default=str), encoding="utf-8")
+    row = repo_relative(json.loads(json.dumps(row, default=str)))
+    (d / "metrics.json").write_text(json.dumps(row, indent=1), encoding="utf-8")
     return row
 
 
@@ -182,7 +184,7 @@ def main(argv=None):
     for r in rows:
         prev[r["id"]] = r
     allrows = [prev[k] for k in sorted(prev)]
-    pj.write_text(json.dumps(allrows, indent=1, default=str), encoding="utf-8")
+    pj.write_text(json.dumps(repo_relative(json.loads(json.dumps(allrows, default=str))), indent=1), encoding="utf-8")
     (RES / "part3.md").write_text(write_markdown(allrows), encoding="utf-8")
 
 

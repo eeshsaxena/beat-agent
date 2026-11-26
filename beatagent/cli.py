@@ -11,7 +11,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import os
 import sys
 from pathlib import Path
 
@@ -81,15 +80,18 @@ def _recreate(a):
 
 
 def _evals(a):
-    from evals import run_part1, run_part2, run_part3
+    from beatagent.llm import any_llm_key
+    from evals import run_part1, run_part2, run_part3, run_recreate_chat
 
     run_part1.main([])
-    replay = a.replay or not os.environ.get("ANTHROPIC_API_KEY")
+    replay = a.replay or not any_llm_key()
     if replay:
         print("Part 2: replaying the recorded LLM tool calls (no API key, or --replay).")
     run_part2.main(["--replay"] if replay else [])
     run_part3.main([])
-    print("Results: evals/results/part1.md, part2.md, part3.md")
+    run_recreate_chat.main(["--offline"] if replay else [])
+    print("Results: evals/results/part1.md, " + ("part2_replay.md" if replay else "part2.md")
+          + ", part3.md, " + ("part3_chat_offline.md" if replay else "part3_chat.md"))
 
 
 def _demo(a):

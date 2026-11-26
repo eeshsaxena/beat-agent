@@ -1,0 +1,4 @@
+> Sync A7 to A1, starting the overlap at A1's bar 33.
+I've synced track A7 to start at bar 33 of this track, using A7's bar 1.
+  [SYNC] SYNC A7 -> A1: A7 bar 1 (0.518 s) lands on A1 bar 33 (62.115 s); time-stretch ratio 1.032253 (128.00 -> 124.00 BPM, pitch preserved); 60.0 s overlap rendered.
+  [SYNC] Measured kick alignment: median 0.79 ms, max 1.91 ms over 124 kicks.

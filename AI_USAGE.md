@@ -5,7 +5,7 @@
 ## Tools
 
 * **Claude Code** (Claude Opus 5.5, Claude desktop app) as the coding assistant for the whole build.
-* **Claude Opus 5.5 inside the product**: the chat agent's interpreter (`beatagent/llm.py`), behind typed tool calls.
+* **An LLM inside the product** (Claude Opus 5.5, or Gemini through Google's API): the chat agent's interpreter (`beatagent/llm.py`), behind typed tool calls.
 
 ## What I delegated
 

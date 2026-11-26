@@ -6,11 +6,12 @@ All numbers come from the synthetic stand-in pack (`testpack/`), unless you poin
 |---|---|---|
 | `python -m evals.run_part1` | Beat grid per clip: mir_eval beat/downbeat F (±70 ms), the full mir_eval suite, grid drift vs reference, analysis time. Sync A7 → A1 at bar 33, plus two variable-tempo partners (A5, A3). | [results/part1.md](results/part1.md) |
 | `python -m evals.run_baselines` | librosa and raw Beat This! vs the full pipeline on every clip; A1 degraded four ways (MP3 96 kbps, 15 dB noise, 3 kHz low-pass, kick removed); speed with 4 threads. | [results/part1_baselines.md](results/part1_baselines.md) |
-| `python -m evals.run_part2` | The brief's chat sessions through the live agent, each turn graded against [answer_key.py](answer_key.py), with the format, splice and grid checks below. Writes `recorded/part2_sessions.json`. | `results/part2.md` (not run yet: no working API key on the build machine) |
-| `python -m evals.run_part2 --replay` | The same, replaying the recorded tool calls (no API calls). | same |
+| `python -m evals.run_part2` | The brief's chat sessions through the live agent (Claude or Gemini, no grammar fallback), each turn graded against [answer_key.py](answer_key.py), with the format, splice and grid checks below. Records the model per turn and writes `recorded/part2_sessions.json`. | [results/part2.md](results/part2.md) |
+| `python -m evals.run_part2 --replay` | The same, replaying the recorded tool calls (no API calls). Outputs go to `out/part2/replay/` (git-ignored: they duplicate the live run's). | [results/part2_replay.md](results/part2_replay.md) |
 | `python -m evals.run_part2 --offline` | The same sessions through the offline grammar (no LLM), graded against the answer key. The grammar was written with these commands in view; `tests/test_offline.py` covers other phrasings. | [results/part2_offline.md](results/part2_offline.md) |
 | `python -m evals.run_part2 --reference` | The same sessions with the answer key executed by the engine (**no LLM**). Tests the edit engine, not the agent. | [results/part2_reference.md](results/part2_reference.md) |
 | `python -m evals.run_part3` | Audio → score → page → offline render for P1–P4: note F vs reference MIDI (onset-only, ±50 ms), score timing vs MIDI, render onset timing vs the original, network requests and page errors. | [results/part3.md](results/part3.md) |
+| `python -m evals.run_recreate_chat [--offline]` | Chat changes to P2's recreation through the live LLM (or the offline grammar): mute, brighter, tempo, level, solo, undo, and "add a guitar", which must be refused. Each turn is graded on the score it leaves: exactly the requested change and nothing else. | [results/part3_chat.md](results/part3_chat.md), [part3_chat_offline.md](results/part3_chat_offline.md) |
 | `python -m pytest -q tests` | Model-free unit tests of the conventions and invariants. | |
 
 ## Part 2 checks, per turn
@@ -30,7 +31,7 @@ All numbers come from the synthetic stand-in pack (`testpack/`), unless you poin
 | 2 | `out/part2/<session>/` (live), `out/part2/offline/<session>/`, `out/part2/reference/<session>/` | `turn<N>.wav|flac` (edited audio at the input's format), `turn<N>.edl.json` (the edit decision list: every turn's ops and echo, plus the timeline of source pieces), `turn<N>.grid.json`, `turn<N>.click_audition` (`.mp3`, + `.wav`), `turn<N>.mp3`, `transcript.txt`, `turns.json`, and for session 6 the sync render |
 | 3 | `out/part3/<ID>/` | `score.json`, `page.html` (open it in a browser), `render.wav` (2 loops from the headless offline render), `metrics.json` |
 
-Full-resolution WAV/FLAC files are not committed (a 24-bit 6-minute edit is ~97 MB). `make evals` regenerates them deterministically, and `python scripts/package_artifacts.py` zips them with the stand-in pack for the [v1.0 release](https://github.com/eeshsaxena/beat-agent/releases/tag/v1.0), where they are attached. `python scripts/check_claims.py` checks that every number the README states matches these result files.
+Full-resolution WAV/FLAC files are not committed (a 24-bit 6-minute edit is ~97 MB). The live, offline and reference Part 2 runs produce byte-identical audio (sha256), so the repo carries one set of MP3 listening copies, under `out/part2/reference/`. `make evals` regenerates them deterministically, and `python scripts/package_artifacts.py` zips them with the stand-in pack for the [v1.0 release](https://github.com/eeshsaxena/beat-agent/releases/tag/v1.0), where they are attached. `python scripts/check_claims.py` checks that every number the README states matches these result files.
 
 ## What has been listened to
 

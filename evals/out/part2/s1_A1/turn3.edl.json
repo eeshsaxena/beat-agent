@@ -1,0 +1,97 @@
+{
+ "schema": "beat-agent/edl@1",
+ "source": {
+  "file": "A1.wav",
+  "sample_rate": 44100,
+  "subtype": "PCM_24",
+  "duration_s": 358.809025
+ },
+ "conventions": "Ops address the grid at the start of their turn: beats 0-based half-open, bars 1-based inclusive (see the grid JSON). Splices use a 10 ms equal-power crossfade just before the boundary; piece lengths are exact, so the grid does not move.",
+ "history": [
+  {
+   "step": 1,
+   "label": "REPEAT beats 16-31 (16 beats, bars 5-8, 7.921-15.663 s) so it plays 2x in total (1 extra copy inserted at 15.663 s, +7.742 s); the track then continues",
+   "ops": [
+    {
+     "op": "repeat",
+     "range": {
+      "unit": "beats",
+      "start_beat": 16,
+      "end_beat": 32
+     },
+     "total_plays": 2
+    }
+   ],
+   "echo": [
+    "REPEAT beats 16-31 (16 beats, bars 5-8, 7.921-15.663 s) so it plays 2x in total (1 extra copy inserted at 15.663 s, +7.742 s); the track then continues.",
+    "Track length 358.809 s -> 366.551 s; grid now 752 beats, bars 1-188."
+   ],
+   "warnings": [],
+   "active": true
+  },
+  {
+   "step": 2,
+   "label": "FADE OUT (equal-power) over beats 744-751 (8 beats, bars 187-188, 360.179-366.551 s)",
+   "ops": [
+    {
+     "op": "fade",
+     "range": {
+      "unit": "beats",
+      "start_beat": 744,
+      "end_beat": 752
+     },
+     "direction": "out",
+     "shape": "equal_power"
+    }
+   ],
+   "echo": [
+    "FADE OUT (equal-power) over beats 744-751 (8 beats, bars 187-188, 360.179-366.551 s).",
+    "Track length 366.551 s -> 366.551 s; grid now 752 beats, bars 1-188."
+   ],
+   "warnings": [],
+   "active": false
+  }
+ ],
+ "timeline": [
+  {
+   "out_start_s": 0.0,
+   "out_end_s": 7.921247,
+   "src_start_s": 0.0,
+   "src_end_s": 7.921247,
+   "src_start_sample": 0,
+   "src_end_sample": 349327,
+   "ramps": []
+  },
+  {
+   "out_start_s": 7.921247,
+   "out_end_s": 15.663175,
+   "src_start_s": 7.921247,
+   "src_end_s": 15.663175,
+   "src_start_sample": 349327,
+   "src_end_sample": 690746,
+   "ramps": []
+  },
+  {
+   "out_start_s": 15.663175,
+   "out_end_s": 23.405102,
+   "src_start_s": 7.921247,
+   "src_end_s": 15.663175,
+   "src_start_sample": 349327,
+   "src_end_sample": 690746,
+   "ramps": []
+  },
+  {
+   "out_start_s": 23.405102,
+   "out_end_s": 366.550952,
+   "src_start_s": 15.663175,
+   "src_end_s": 358.809025,
+   "src_start_sample": 690746,
+   "src_end_sample": 15823478,
+   "ramps": []
+  }
+ ],
+ "splices_s": [
+  15.663175
+ ],
+ "duration_s": 366.550952
+}

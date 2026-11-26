@@ -12,7 +12,7 @@
   "build_s": 17.8,
   "render_s": 5.5,
   "render": {
-   "wav": "C:\\Users\\eeshs\\Downloads\\y\\evals\\out\\part3\\P1\\render.wav",
+   "wav": "evals/out/part3/P1/render.wav",
    "seconds": 11.5,
    "loop_seconds": 5,
    "loops": 2,
@@ -111,7 +111,7 @@
   "build_s": 18.2,
   "render_s": 1.9,
   "render": {
-   "wav": "C:\\Users\\eeshs\\Downloads\\y\\evals\\out\\part3\\P2\\render.wav",
+   "wav": "evals/out/part3/P2/render.wav",
    "seconds": 18.955,
    "loop_seconds": 8.727280661164238,
    "loops": 2,
@@ -223,7 +223,7 @@
   "build_s": 39.7,
   "render_s": 4.6,
   "render": {
-   "wav": "C:\\Users\\eeshs\\Downloads\\y\\evals\\out\\part3\\P3\\render.wav",
+   "wav": "evals/out/part3/P3/render.wav",
    "seconds": 47.214,
    "loop_seconds": 22.857142857142858,
    "loops": 2,
@@ -286,7 +286,7 @@
   "build_s": 27.4,
   "render_s": 8.8,
   "render": {
-   "wav": "C:\\Users\\eeshs\\Downloads\\y\\evals\\out\\part3\\P4\\render.wav",
+   "wav": "evals/out/part3/P4/render.wav",
    "seconds": 32.468,
    "loop_seconds": 15.483883454744722,
    "loops": 2,

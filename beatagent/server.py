@@ -153,13 +153,21 @@ def library():
                         "uploaded": p.parent == UPLOADS})
         except Exception:
             continue
+    from .llm import any_llm_key
+
     mode = os.environ.get("BEAT_AGENT_INTERPRETER", "auto")
-    has_key = bool(os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN"))
-    interpreter = "offline" if mode == "offline" or not has_key else "llm"
-    return {"tracks": out, "llm": has_key, "interpreter": interpreter, "llm_status": LLM_STATUS, "pack": str(PACK)}
+    interpreter = "offline" if mode == "offline" or not any_llm_key() else "llm"
+    return {"tracks": out, "llm": any_llm_key(), "interpreter": interpreter, "llm_status": LLM_STATUS, "pack": str(PACK)}
 
 
 LLM_STATUS: dict = {"checked": False}
+
+
+def _note_model(agent) -> None:
+    """Show the model that actually answered: Gemini may have skipped busy models for the next one."""
+    m = getattr(agent.loop, "model", "") or ""
+    if m.startswith("gemini-"):
+        LLM_STATUS.update(model=m, note=f"Gemini {m}")
 
 
 def check_llm() -> None:
@@ -169,19 +177,34 @@ def check_llm() -> None:
     if os.environ.get("BEAT_AGENT_INTERPRETER", "auto") != "auto":
         LLM_STATUS["note"] = f"interpreter forced to {os.environ['BEAT_AGENT_INTERPRETER']}"
         return
-    if not (os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN")):
-        LLM_STATUS["note"] = "no API key: offline grammar"
-        return
-    try:
-        import anthropic
+    from . import llm
 
-        anthropic.Anthropic().models.list(limit=1)
-        LLM_STATUS["note"] = "API key works"
-    except Exception as e:  # noqa: BLE001
-        code = getattr(e, "status_code", None)
-        LLM_STATUS["note"] = f"API key not usable ({code or type(e).__name__}): offline grammar"
-        if code in (401, 403):
-            os.environ["BEAT_AGENT_INTERPRETER"] = "offline"
+    notes = []
+    for p in llm.providers():
+        try:
+            if p == "anthropic":
+                import anthropic
+
+                anthropic.Anthropic().models.list(limit=1)
+                LLM_STATUS.update(provider="anthropic", note="Claude")
+            else:
+                from google import genai
+
+                model = llm.pick_gemini_model(genai.Client(api_key=llm.gemini_key()))
+                LLM_STATUS.update(provider="gemini", model=model, note=f"Gemini ({model} first, others if busy)")
+            return
+        except Exception as e:  # noqa: BLE001
+            code = getattr(e, "status_code", None) or getattr(e, "code", None)
+            if code in (401, 403) or "API key not valid" in str(e):
+                notes.append(f"{p} key rejected ({code})")
+                llm.mark_down(p)  # only a rejected key rules a provider out; a network blip doesn't
+            else:
+                LLM_STATUS.update(provider=p, note=f"{p}: key not checked ({code or type(e).__name__}); "
+                                                   "falls back to the grammar per message if unreachable")
+                return
+    LLM_STATUS["note"] = ("; ".join(notes) or "no API key") + ": offline grammar"
+    if notes:
+        os.environ["BEAT_AGENT_INTERPRETER"] = "offline"
 
 
 @app.post("/api/upload")
@@ -294,6 +317,7 @@ def session_chat(sid: str, req: ChatReq):
             ag = _agent(sid)
             ag.confirm = req.confirm
             r = ag.ask(msg).to_dict()
+            _note_model(ag)
         for ev in r["events"]:
             for k, p in (ev.get("paths") or {}).items():
                 ev.setdefault("urls", {})[k] = "/api/files/" + Path(p).relative_to(RUNTIME).as_posix()
@@ -433,6 +457,7 @@ def recreation_chat(rid: str, req: ChatReq):
         r = RECREATIONS[rid]
         with r["lock"]:
             res = r["agent"].ask(req.message.strip()[:2000])
+            _note_model(r["agent"])
         r["chat"].append(res)
         if any(ev["type"] in ("applied", "undo") for ev in res["events"]):
             r["version"] += 1

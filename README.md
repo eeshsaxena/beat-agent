@@ -6,7 +6,7 @@ One chat-driven agent for a piece of audio:
 2. **Chat editing on the grid.** "Cut beat 16–32 and repeat it twice" becomes typed edit operations that code validates, echoes in exact beats/bars/seconds, and applies without clicks. The grid stays true after every edit, and undo/redo works per turn.
 3. **Audio to playable code.** A 2–16 bar clip becomes a score (JSON) and a self-contained HTML page that recreates it with Web Audio synthesis, plus an offline render so it can be measured.
 
-**Core rule: the LLM interprets, code measures and executes.** Tempo, beat positions, onsets and notes come from signal processing and models (Beat This!, Rubber Band, Demucs, Basic Pitch). The LLM (Claude) only turns words into typed operations; it never produces a time and never writes the JavaScript.
+**Core rule: the LLM interprets, code measures and executes.** Tempo, beat positions, onsets and notes come from signal processing and models (Beat This!, Rubber Band, Demucs, Basic Pitch). The LLM (Claude or Gemini) only turns words into typed operations; it never produces a time and never writes the JavaScript.
 
 Without a working API key, the app falls back to an **offline grammar** ([`beatagent/offline.py`](beatagent/offline.py)) and says so in every reply.
 * It turns a documented subset of phrasings into the same typed operations, through the same validation and echo.
@@ -19,10 +19,10 @@ Without a working API key, the app falls back to an **offline grammar** ([`beata
 
 ## Run it
 
-You need Python 3.12 and about 3 GB of disk for packages and models. An `ANTHROPIC_API_KEY` enables the LLM interpreter; without one, chat uses the offline grammar and says so.
+You need Python 3.12 and about 3 GB of disk for packages and models. An `ANTHROPIC_API_KEY` or a `GEMINI_API_KEY` enables the LLM interpreter (with both, Claude is tried first); without one, chat uses the offline grammar and says so.
 
 ```bash
-cp .env.example .env        # add your ANTHROPIC_API_KEY
+cp .env.example .env        # add ANTHROPIC_API_KEY or GEMINI_API_KEY
 make demo                   # setup (first run only) -> all evals -> web app on http://127.0.0.1:8000
 ```
 
@@ -31,13 +31,14 @@ make demo                   # setup (first run only) -> all evals -> web app on 
 
 | Command | What it does |
 |---|---|
-| `make evals` | Parts 1–3; Part 2 calls the LLM live and grades it against an answer key |
+| `make evals` | Parts 1–3; Part 2 and the recreation chat call the LLM live and are graded against an answer key (replayed or offline without a key) |
 | `make evals-replay` | The same, with Part 2 replaying the recorded tool calls (no API calls) |
 | `python -m evals.run_part2 --reference` | Part 2's sessions run by the engine from the answer key, no LLM |
 | `python -m evals.run_part2 --offline` | Part 2's sessions through the offline grammar, graded against the answer key |
+| `python -m evals.run_recreate_chat [--offline]` | Chat changes to a recreation (mute, brighter, tempo, level, solo, undo, a refusal), graded on the score each turn leaves |
 | `python -m evals.run_baselines` | librosa and raw Beat This! baselines, plus degraded-audio stress tests |
 | `make check` | Checks that every number this README states matches `evals/results/` |
-| `make test` | 47 fast unit tests: conventions, edit invariants, formats, page safety, tempo maths, both grammars |
+| `make test` | 65 fast unit tests: conventions, edit invariants, formats, page safety, tempo maths, both grammars, Gemini schema and fallback |
 | `python -m beatagent.cli analyze\|chat\|sync\|recreate FILE` | Individual tools on your own audio |
 
 Setup also downloads:
@@ -49,7 +50,7 @@ Setup also downloads:
 
 ```
             words                     typed ops (JSON)                   exact echo + new state
- user ──────────────► Claude (tool use) ───────────────► validate & apply ──────────────────────► user
+ user ──────────────► LLM (tool use)    ───────────────► validate & apply ──────────────────────► user
                          ▲   reads only:                     (beatagent/edl.py, score.py)
                          │   grid summary, history,
                          │   measured sections
@@ -70,7 +71,7 @@ Setup also downloads:
 | `tracking.py` | Beat This! frame logits → raw beats → constant / piecewise / variable tempo model. The tracker proposes the tempo; the measured onset curve decides phase, slope and whether the tempo really is constant. Also metre, downbeat phase, compound-metre regrouping, grid extent and confidence. |
 | `grid.py` | `BeatGrid`: the JSON format, the indexing conventions, and the factual summary the LLM reads. |
 | `edl.py` | Typed ops (`remove`, `keep_only`, `repeat`, `move`, `insert_copy`, `fade`, `gain`, `mute`) in beats or bars, a non-destructive timeline, the click-free renderer and grid derivation. |
-| `session.py`, `agent.py`, `llm.py` | Undo/redo per chat turn; the Claude tool loop; the system prompt with the conventions. |
+| `session.py`, `agent.py`, `llm.py` | Undo/redo per chat turn; the Claude and Gemini tool loops (same tools, same schemas; busy Gemini models are skipped for the next); the system prompt with the conventions. |
 | `sections.py` | Measured sections (band energy per bar) for subjective requests like "the boring part". |
 | `sync.py`, `stretch.py` | Ratio and offset from the two grids; a Rubber Band stretch pinned at bar anchors; measured kick alignment. |
 | `recreate.py`, `score.py`, `webaudio/` | Audio → score → page → offline render, plus typed score ops for chat ("mute the drums"). |
@@ -88,13 +89,13 @@ Setup also downloads:
 | Speed | 6-minute track in 12 s on a laptop CPU, also 12 s on 4 threads (target 60 s) | same |
 | Two-track sync | A7 → A1: measured kick onsets median 0.8 ms, max 1.9 ms (targets 5 and 15 ms). Variable-tempo partners also work; stretches over 8% are flagged. | `evals/results/part1.md` |
 | Typed edit ops, echo, clean splices, sample rate and bit depth kept, grid stays true, undo/redo | Works: all brief sessions run through the engine (reference mode) plus unit tests | `evals/results/part2_reference.md`, `tests/` |
-| Chat sessions from the brief through the live LLM | **Pending.** The API key on the build machine was rejected (401). Agent, recording, replay and answer-key grading are written. | written to `evals/results/part2.md` by a live run (not present yet) |
+| Chat sessions from the brief through the live LLM | **10/10 turns match the answer key**, live through Gemini (`gemini-3.5-flash-lite`) with no grammar fallback, for about $0.06. The edited audio is byte-identical (sha256) to the reference run's. The recorded tool calls replay with no API calls, also 10/10. Ten turns is a small sample, and the larger Gemini models were overloaded, so this is the smallest one. **Not run through Claude**: the Anthropic key on the build machine was rejected (401). | `evals/results/part2.md`, `part2_replay.md`, `evals/recorded/` |
 | Same sessions through the offline grammar | 10/10 turns match the answer key. I wrote the grammar with these commands in view, so this shows the fallback works, not that it generalises. Unit tests cover other phrasings and refusals. | `evals/results/part2_offline.md`, `tests/test_offline.py` |
 | Edits on a variable-tempo grid | Works (A3 live band, A5 tempo change in reference mode) | same |
 | Preview player with waveform and grid; direct edits; "confirm before applying" mode | Works. In confirm mode, edits are proposed with their exact echo and applied only on the user's click; this is enforced in code. | web app, Edit tab |
 | Audio → score → Web Audio page → offline render | Works for P1–P4; no network requests, no page errors; reproducible run to run | `evals/results/part3.md` |
 | Note F vs reference MIDI | P1 drums 0.85; P2 drums 0.89, bass 0.98; P3 piano 0.78. Score timing vs MIDI: 0.3–1.1 ms median. | same |
-| Chat changes to the recreation, per-track mixer | The mixer works. "Mute the drums", "make the bass brighter" and "play it at 140" work through the offline grammar (tested in the app). **Untested through the live LLM.** | `beatagent/recreate_agent.py`, `beatagent/offline.py` |
+| Chat changes to the recreation, per-track mixer | The mixer works. Recreation chat (mute, brighter, tempo, level, solo, undo, and a refusal for "add a guitar"): live: 7/7 turns leave the score exactly as expected (Gemini); offline grammar: 7/7. | `evals/results/part3_chat.md`, `part3_chat_offline.md` |
 | `docker compose up` | The image **builds in CI** (`docker compose build`, including setup inside it: packages, Chromium, both model downloads and the stand-in pack; [run](https://github.com/eeshsaxena/beat-agent/actions/runs/45690261136)). **A full `up` (evals + app) has not been run in a container**; the same commands run natively. | `Dockerfile`, `.github/workflows/ci.yml` |
 | Full-resolution artefacts | In the repo: every grid, EDL, report, score, page, Part 3 render and an MP3 of every audio file. Full-resolution edits, stems and the stand-in pack are attached to the [v1.0 release](https://github.com/eeshsaxena/beat-agent/releases/tag/v1.0) (built by `make package`); `make evals` regenerates them deterministically. | `evals/README.md` |
 | Real test pack | **Missing**: it was not provided; the loader is ready | `evals/pack.py` |
@@ -116,6 +117,8 @@ Setup also downloads:
 **Sync** A7 → A1 from A1's bar 33: stretch ratio 1.032253 (128 → 124 BPM); measured kick onsets median 0.8 ms, max 1.9 ms over 124 kicks. The variable-tempo partners also land on the grid:
 * A5 → A1: reference beats within 0.3 ms.
 * A3 → A1: reference beats within 1.5 ms median, 5.6 ms max, with a warning that its 35% stretch is musically unreasonable.
+
+**Part 2, live LLM** ([table](evals/results/part2.md)): Gemini read every command the way the answer key does, including the two pushbacks (code refused bars 200–210; "the boring part" got measured candidates and a question).
 
 **Part 2**, engine on the answer key, no LLM ([table](evals/results/part2_reference.md)):
 * The offline grammar's edits are byte-identical (sha256) to the answer key's.

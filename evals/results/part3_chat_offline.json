@@ -1,0 +1,75 @@
+{
+ "mode": "offline",
+ "clip": "P2",
+ "turns": [
+  {
+   "user": "Mute the drums.",
+   "expected": "drums muted, nothing else changed",
+   "ok": true,
+   "reply": "Offline grammar: set mute on Drums.",
+   "error": null,
+   "echo": [
+    "MUTE Drums."
+   ]
+  },
+  {
+   "user": "Make the bass a bit brighter.",
+   "expected": "bass filter cutoff raised, nothing else changed",
+   "ok": true,
+   "reply": "Offline grammar: brightness on Bass.",
+   "error": null,
+   "echo": [
+    "BRIGHTNESS Bass: filter cutoff 719 -> 1078 Hz."
+   ]
+  },
+  {
+   "user": "Play it at 140.",
+   "expected": "tempo 140 BPM, notes untouched",
+   "ok": true,
+   "reply": "Offline grammar: tempo 140 BPM.",
+   "error": null,
+   "echo": [
+    "TEMPO 110.00 -> 140.00 BPM (loop 8.727 -> 6.857 s; pitch unchanged)."
+   ]
+  },
+  {
+   "user": "Turn the bass down a little.",
+   "expected": "bass level lowered by a small step (1-6 dB)",
+   "ok": true,
+   "reply": "Offline grammar: set gain on Bass.",
+   "error": null,
+   "echo": [
+    "LEVEL Bass: +0.0 -> -3.0 dB."
+   ]
+  },
+  {
+   "user": "Add a guitar.",
+   "expected": "refused: the score has no guitar and notes are never invented; score unchanged",
+   "ok": true,
+   "reply": "Offline grammar: the recreation can only change the tracks that were transcribed; adding an instrument would mean inventing notes. Tracks: drums (Drums), bass (Bass).",
+   "error": null,
+   "echo": []
+  },
+  {
+   "user": "Undo.",
+   "expected": "the bass level change is undone",
+   "ok": true,
+   "reply": "Offline grammar: undo.",
+   "error": null,
+   "echo": [
+    "Undid the last change to the recreation."
+   ]
+  },
+  {
+   "user": "Solo the bass.",
+   "expected": "bass soloed, nothing else changed",
+   "ok": true,
+   "reply": "Offline grammar: set solo on Bass.",
+   "error": null,
+   "echo": [
+    "SOLO Bass."
+   ]
+  }
+ ],
+ "spend_usd": 0
+}

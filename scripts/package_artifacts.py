@@ -37,12 +37,12 @@ def keep(p: Path) -> bool:
     """Full-resolution audio worth shipping (GitHub release files must stay under 2 GB):
     * edited audio, sync stems and Part 3 renders at full resolution;
     * not the click-audition WAVs: their MP3 copies are in the repo, and they are only for listening;
-    * not evals/out/part2/offline: those edits are byte-identical to evals/out/part2/reference
-      (checked with sha256), so one copy is enough."""
+    * of Part 2, only evals/out/part2/reference: the offline-grammar, live-LLM and replay runs' edits are
+      byte-identical to it (checked with sha256), so one copy is enough."""
     rel = p.relative_to(ROOT / "evals" / "out").parts
     if p.suffix.lower() not in {".wav", ".flac"} or "click_audition" in p.name:
         return False
-    return not (rel[0] == "part2" and rel[1] == "offline")
+    return not (rel[0] == "part2" and rel[1] != "reference")
 
 
 def main():

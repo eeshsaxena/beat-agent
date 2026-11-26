@@ -9,7 +9,7 @@ from pathlib import Path
 
 from pydantic import TypeAdapter, ValidationError
 
-from .llm import LLMUnavailable, Tool, ToolLoop, schema_with_defs
+from .llm import LLMUnavailable, Tool, any_llm_key, make_loop, schema_with_defs, is_permanent
 from .score import ScoreError, ScoreOp, apply_score_ops, build_page
 
 SYSTEM = """You are the interpreter for Beat Agent's recreation player. A short audio clip has been transcribed into a score (tempo, tracks, notes) that plays in a Web Audio page. You change the playback only by calling apply_score_ops with typed operations; code applies them and rebuilds the page. You never write code, and you never invent notes or tempo.
@@ -37,7 +37,7 @@ class RecreateAgent:
         tools = [Tool("apply_score_ops", "Apply typed operations to the score and rebuild the page.",
                       schema_with_defs({"ops": _schema}, ["ops"], _DEFS), self._apply),
                  Tool("undo", "Undo the last change to the recreation.", schema_with_defs({}, []), self._undo)]
-        self.loop = ToolLoop(SYSTEM, tools, model=model, tag=f"recreate:{score.get('title')}")
+        self.loop = make_loop(SYSTEM, tools, model=model, tag=f"recreate:{score.get('title')}")
 
     def _state(self) -> str:
         s = self.score
@@ -75,18 +75,18 @@ class RecreateAgent:
 
         self._events = []
         mode = os.environ.get("BEAT_AGENT_INTERPRETER", "auto")
-        has_key = bool(os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN"))
-        if mode == "offline" or (mode == "auto" and (not has_key or self._llm_down)):
+        if mode == "offline" or (mode == "auto" and (not any_llm_key() or self._llm_down)):
             return self._ask_offline(text, self._llm_down or "")
         try:
             res = self.loop.run(f"<score_state>\n{self._state()}\n</score_state>\n\n{text}")
         except LLMUnavailable as e:
             return {"user": text, "reply": "", "events": [], "error": str(e)}
         if res.unavailable and mode == "auto":
-            # remember for this session, so later messages don't wait on a failing call again
-            self._llm_down = f"[LLM unavailable: {res.error} Using the offline grammar.] "
+            note = f"[LLM unavailable: {res.error} Using the offline grammar.] "
+            if is_permanent(res.error):
+                self._llm_down = note  # a missing or rejected key: stop trying for this session
             self._events = []
-            return self._ask_offline(text, self._llm_down)
+            return self._ask_offline(text, note)
         return {"user": text, "reply": res.text, "events": self._events, "error": res.error, "usage": res.usage}
 
     def _ask_offline(self, text: str, note: str = "") -> dict:

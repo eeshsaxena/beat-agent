@@ -6,6 +6,7 @@ services:
         required: false
     environment:
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY:-}
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
     ports:
       - "8000:8000"
     volumes:

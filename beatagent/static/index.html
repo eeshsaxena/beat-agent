@@ -227,9 +227,9 @@ async function loadLibrary(select) {
   const lib = await api("/api/library");
   LIB = lib.tracks;
   const why = (lib.llm_status && lib.llm_status.note) || "";
-  $("llm").textContent = lib.interpreter === "llm" ? "chat: Claude (LLM)" : `chat: offline grammar (${why.replace(": offline grammar", "") || "no LLM key"})`;
+  $("llm").textContent = lib.interpreter === "llm" ? `chat: ${(lib.llm_status && lib.llm_status.note) || "LLM"}` : `chat: offline grammar (${why.replace(": offline grammar", "") || "no LLM key"})`;
   $("llm").className = "badge " + (lib.interpreter === "llm" ? "ok" : "warn");
-  $("llm").title = lib.interpreter === "llm" ? "Messages are interpreted by Claude; if it is unreachable the app falls back to the offline grammar and says so."
+  $("llm").title = lib.interpreter === "llm" ? "Messages are interpreted by the LLM named here; if it is unreachable the app falls back to the offline grammar and says so."
     : "No API key: a deterministic grammar interprets a documented subset of phrasings and refuses the rest.";
   const fill = (el, filter) => { el.innerHTML = ""; for (const t of LIB.filter(filter)) {
     const o = document.createElement("option"); o.value = t.id; o.textContent = `${t.id} · ${t.duration_s.toFixed(1)} s · ${t.sample_rate / 1000} kHz${t.uploaded ? " · uploaded" : ""}`; el.appendChild(o); } };

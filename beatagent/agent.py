@@ -16,7 +16,7 @@ from dataclasses import dataclass, field
 from pydantic import TypeAdapter, ValidationError
 
 from .edl import EditError, EditOp
-from .llm import LLMUnavailable, Tool, ToolLoop, schema_with_defs
+from .llm import LLMUnavailable, Tool, any_llm_key, make_loop, schema_with_defs, is_permanent
 from .sections import find_sections
 from .session import EditSession
 
@@ -120,7 +120,7 @@ class EditAgent:
                     "start_bar_other": {"type": "integer", "description": "Bar of track B that lands there (default 1)."},
                     "seconds": {"type": "number", "description": "Overlap length in seconds (default 60)."},
                 }, ["other_track", "start_bar_this"]), self._sync))
-        self.loop = ToolLoop(SYSTEM, tools, model=model, effort=effort, tag=f"edit:{session.name}")
+        self.loop = make_loop(SYSTEM, tools, model=model, effort=effort, tag=f"edit:{session.name}")
 
     # ----------------------------------------------------------------- tools
     def _parse(self, inp: dict):
@@ -231,8 +231,7 @@ class EditAgent:
         self._events = []
         if self.replay is not None:
             return self._ask_replay(text)
-        has_key = bool(os.environ.get("ANTHROPIC_API_KEY") or os.environ.get("ANTHROPIC_AUTH_TOKEN"))
-        if self.interpreter == "offline" or (self.interpreter == "auto" and (not has_key or self._llm_down)):
+        if self.interpreter == "offline" or (self.interpreter == "auto" and (not any_llm_key() or self._llm_down)):
             return self._ask_offline(text, note=self._llm_down or "")
         lib = f"\nOther analysed tracks available for sync: {', '.join(sorted(self.library))}." if self.library else ""
         content = f"<track_state>\nTrack: {self.session.name}{lib}\n{self._state_text()}\n</track_state>\n\n{text}"
@@ -242,9 +241,10 @@ class EditAgent:
             return AgentReply(text, "", [], str(e))
         if res.unavailable and self.interpreter == "auto":
             self._events = []
-            # remember for this session, so every later message doesn't wait on a failing call again
-            self._llm_down = f"[LLM unavailable: {res.error} Using the offline grammar.] "
-            return self._ask_offline(text, note=self._llm_down)
+            note = f"[LLM unavailable: {res.error} Using the offline grammar.] "
+            if is_permanent(res.error):
+                self._llm_down = note  # a missing or rejected key: stop trying for this session
+            return self._ask_offline(text, note=note)  # a transient error: fall back for this message only
         calls = [{"tool": c["tool"], "input": c["input"]} for c in res.tool_calls]
         self.recorded.append({"user": text, "reply": res.text, "error": res.error, "tool_calls": calls})
         return AgentReply(text, res.text, self._events, res.error, res.usage, calls)

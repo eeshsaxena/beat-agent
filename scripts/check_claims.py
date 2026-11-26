@@ -61,6 +61,24 @@ def main() -> int:
                    ("P3 precision", f"precision {by['P3']['reference']['pitched_note_f']['p']:.2f}")]
         claims.append(("no network requests", "no network requests"))
         assert all(len(r["render"]["network_requests"]) == 0 for r in p3), "a page made a network request"
+    p2 = load("part2.json")
+    if p2:
+        turns = [t for s in p2.values() for t in s["turns"]]
+        ok = sum(1 for t in turns if t.get("interpretation", {}).get("ok"))
+        claims.append(("live LLM score", f"**{ok}/{len(turns)} turns match the answer key**"))
+        for m in sorted({m for s in p2.values() for m in s.get("models", [])}):
+            claims.append(("live LLM model", f"`{m}`"))
+        claims.append(("live LLM spend", f"about ${sum(s['spend_usd'] for s in p2.values()):.2f}"))
+    p2r = load("part2_replay.json")
+    if p2r:
+        turns = [t for s in p2r.values() for t in s["turns"]]
+        ok = sum(1 for t in turns if t.get("interpretation", {}).get("ok"))
+        claims.append(("replay score", f"replay with no API calls, also {ok}/{len(turns)}"))
+    for name, label in (("part3_chat.json", "live"), ("part3_chat_offline.json", "offline grammar")):
+        pc = load(name)
+        if pc:
+            ok = sum(1 for t in pc["turns"] if t["ok"])
+            claims.append((f"recreation chat {label}", f"{label}: {ok}/{len(pc['turns'])}"))
     p2o = load("part2_offline.json")
     if p2o:
         turns = [t for s in p2o.values() for t in s["turns"]]

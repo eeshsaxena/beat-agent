@@ -1145,9 +1145,9 @@
        "notes": []
       },
       "paths": {
-       "mix": "C:\\Users\\eeshs\\Downloads\\y\\evals\\out\\part2\\offline\\s6_A1\\sync_A7_to_A1_bar33\\overlap_mix.wav",
-       "stem_b": "C:\\Users\\eeshs\\Downloads\\y\\evals\\out\\part2\\offline\\s6_A1\\sync_A7_to_A1_bar33\\stem_B_stretched.wav",
-       "mix_mp3": "C:\\Users\\eeshs\\Downloads\\y\\evals\\out\\part2\\offline\\s6_A1\\sync_A7_to_A1_bar33\\overlap_mix.mp3"
+       "mix": "evals/out/part2/offline/s6_A1/sync_A7_to_A1_bar33/overlap_mix.wav",
+       "stem_b": "evals/out/part2/offline/s6_A1/sync_A7_to_A1_bar33/stem_B_stretched.wav",
+       "mix_mp3": "evals/out/part2/offline/s6_A1/sync_A7_to_A1_bar33/overlap_mix.mp3"
       },
       "warnings": []
      }

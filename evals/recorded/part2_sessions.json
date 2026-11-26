@@ -1,0 +1,215 @@
+{
+ "s1_A1": [
+  {
+   "user": "Cut beat 16\u201332 and repeat it twice.",
+   "reply": "I repeated beats 16 to 32 to play twice in total.",
+   "error": null,
+   "tool_calls": [
+    {
+     "tool": "apply_edits",
+     "input": {
+      "ops": [
+       {
+        "total_plays": 2,
+        "range": {
+         "end_beat": 32,
+         "unit": "beats",
+         "start_beat": 16
+        },
+        "op": "repeat"
+       }
+      ],
+      "reading": "I read 'repeat it twice' as playing beats 16 to 32 twice in total."
+     }
+    }
+   ]
+  },
+  {
+   "user": "Now fade out the last 8 beats.",
+   "reply": "I faded out the last 8 beats of the track.",
+   "error": null,
+   "tool_calls": [
+    {
+     "tool": "apply_edits",
+     "input": {
+      "reading": "I read 'the last 8 beats' as the final 8 beats of the current track, from beat 744 to 752.",
+      "ops": [
+       {
+        "range": {
+         "end_beat": 752,
+         "unit": "beats",
+         "start_beat": 744
+        },
+        "op": "fade",
+        "direction": "out"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "user": "Undo.",
+   "reply": "I undid the fade out.",
+   "error": null,
+   "tool_calls": [
+    {
+     "tool": "undo",
+     "input": {}
+    }
+   ]
+  },
+  {
+   "user": "Remove bar 5.",
+   "reply": "I removed bar 5.",
+   "error": null,
+   "tool_calls": [
+    {
+     "tool": "apply_edits",
+     "input": {
+      "reading": "I read 'Remove bar 5' as deleting bar 5 (4 beats).",
+      "ops": [
+       {
+        "op": "remove",
+        "range": {
+         "unit": "bars",
+         "last_bar": 5,
+         "first_bar": 5
+        }
+       }
+      ]
+     }
+    }
+   ]
+  }
+ ],
+ "s2_A2": [
+  {
+   "user": "Loop the first 4 bars four times, then let the track play on.",
+   "reply": "I've looped the first four bars four times in total, and the rest of the track follows.",
+   "error": null,
+   "tool_calls": [
+    {
+     "tool": "apply_edits",
+     "input": {
+      "reading": "Loop the first 4 bars four times = plays four times in total.",
+      "ops": [
+       {
+        "total_plays": 4,
+        "range": {
+         "first_bar": 1,
+         "last_bar": 4,
+         "unit": "bars"
+        },
+        "op": "repeat"
+       }
+      ]
+     }
+    }
+   ]
+  }
+ ],
+ "s3_A5": [
+  {
+   "user": "Repeat the last bar before the tempo change twice.",
+   "reply": "I've repeated bar 32 so it plays twice in total right before the tempo change.",
+   "error": null,
+   "tool_calls": [
+    {
+     "tool": "apply_edits",
+     "input": {
+      "ops": [
+       {
+        "op": "repeat",
+        "range": {
+         "last_bar": 32,
+         "first_bar": 32,
+         "unit": "bars"
+        },
+        "total_plays": 2
+       }
+      ],
+      "reading": "Repeat the last bar before the tempo change twice = plays twice in total."
+     }
+    }
+   ]
+  }
+ ],
+ "s4_A1": [
+  {
+   "user": "Chop out the boring part.",
+   "reply": "That could be the quiet section without kick or bass from bars 65 to 76 (seconds 124.05 to 147.28), or the repetitive intro from bars 1 to 16 (seconds 0.18 to 31.15). Which one would you like to remove?",
+   "error": null,
+   "tool_calls": [
+    {
+     "tool": "find_sections",
+     "input": {}
+    }
+   ]
+  }
+ ],
+ "s5_A3": [
+  {
+   "user": "Cut beat 0 to beat 8.",
+   "reply": "I have removed beats 0 to 8 as requested.",
+   "error": null,
+   "tool_calls": [
+    {
+     "tool": "apply_edits",
+     "input": {
+      "reading": "I read 'Cut beat 0 to beat 8' as removing the range from beat 0 to beat 8.",
+      "ops": [
+       {
+        "op": "remove",
+        "range": {
+         "unit": "beats",
+         "start_beat": 0,
+         "end_beat": 8
+        }
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "user": "Delete bars 200\u2013210.",
+   "reply": "This track only has bars 1 through 63 (plus a 2-beat pickup), so bars 200\u2013210 do not exist.",
+   "error": null,
+   "tool_calls": [
+    {
+     "tool": "apply_edits",
+     "input": {
+      "reading": "I read 'Delete bars 200\u2013210' as removing the bar range from bar 200 to bar 210.",
+      "ops": [
+       {
+        "op": "remove",
+        "range": {
+         "unit": "bars",
+         "last_bar": 210,
+         "first_bar": 200
+        }
+       }
+      ]
+     }
+    }
+   ]
+  }
+ ],
+ "s6_A1": [
+  {
+   "user": "Sync A7 to A1, starting the overlap at A1's bar 33.",
+   "reply": "I've synced track A7 to start at bar 33 of this track, using A7's bar 1.",
+   "error": null,
+   "tool_calls": [
+    {
+     "tool": "sync_tracks",
+     "input": {
+      "start_bar_this": 33,
+      "other_track": "A7"
+     }
+    }
+   ]
+  }
+ ]
+}

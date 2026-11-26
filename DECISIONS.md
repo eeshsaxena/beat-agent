@@ -61,7 +61,9 @@ The brief's test pack (A1–A7 with beat and downbeat annotations, P1–P4 with 
 
 * **Options:** the LLM returns times or audio actions directly; the LLM returns free-text intent parsed by code; the LLM calls typed tools that code validates.
 * **Chose:** typed tools.
-  * Claude Opus 5.5 through the Messages API with tool use; model and effort are environment variables.
+  * Claude Opus 5.5 through the Messages API with tool use, or Gemini through Google's API with function calling. `BEAT_AGENT_LLM` picks one; with both keys, Claude is tried first. Model and effort are environment variables.
+    * Both loops expose the same tools, built from the same pydantic schemas. For Gemini the schema is reduced to the subset its function declarations accept: `$ref` inlined, `oneOf` → `anyOf`, `const` → one-value `enum`.
+    * Gemini models are often overloaded (503s, 60-second deadlines). The loop ranks this key's stable models (Flash newest first, then Flash-Lite, then Pro), skips a busy one for the next, and records which model answered each turn.
   * The LLM sees only a factual grid summary computed by code (beats, bars, tempo segments, the last full bar before each tempo change, irregular bars) and the edit history.
   * It returns pydantic-typed ops. Code validates every op and writes the echo the user sees; the LLM's words are shown separately.
   * **Subjective requests** ("the boring part"): the LLM must call `find_sections`, which measures band energy per bar, section boundaries and repetitiveness, then ask the user to choose. Taste is not delegated to the model.

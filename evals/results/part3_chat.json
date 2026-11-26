@@ -1,0 +1,82 @@
+{
+ "mode": "live",
+ "clip": "P2",
+ "turns": [
+  {
+   "user": "Mute the drums.",
+   "expected": "drums muted, nothing else changed",
+   "ok": true,
+   "reply": "I've muted the drums.",
+   "error": null,
+   "echo": [
+    "MUTE Drums."
+   ],
+   "model": "gemini-3.5-flash-lite"
+  },
+  {
+   "user": "Make the bass a bit brighter.",
+   "expected": "bass filter cutoff raised, nothing else changed",
+   "ok": true,
+   "reply": "I've brightened the bass track.",
+   "error": null,
+   "echo": [
+    "BRIGHTNESS Bass: filter cutoff 719 -> 1078 Hz."
+   ],
+   "model": "gemini-3.5-flash-lite"
+  },
+  {
+   "user": "Play it at 140.",
+   "expected": "tempo 140 BPM, notes untouched",
+   "ok": true,
+   "reply": "I've set the tempo to 140 BPM.",
+   "error": null,
+   "echo": [
+    "TEMPO 110.00 -> 140.00 BPM (loop 8.727 -> 6.857 s; pitch unchanged)."
+   ],
+   "model": "gemini-3.5-flash-lite"
+  },
+  {
+   "user": "Turn the bass down a little.",
+   "expected": "bass level lowered by a small step (1-6 dB)",
+   "ok": true,
+   "reply": "I've turned the bass down by 3 dB.",
+   "error": null,
+   "echo": [
+    "LEVEL Bass: +0.0 -> -3.0 dB."
+   ],
+   "model": "gemini-3.5-flash-lite"
+  },
+  {
+   "user": "Add a guitar.",
+   "expected": "refused: the score has no guitar and notes are never invented; score unchanged",
+   "ok": true,
+   "reply": "The score only contains a drums track and a bass track, so I can't add a guitar.",
+   "error": null,
+   "echo": [],
+   "model": "gemini-3.5-flash-lite"
+  },
+  {
+   "user": "Undo.",
+   "expected": "the bass level change is undone",
+   "ok": true,
+   "reply": "I've undone the last change.",
+   "error": null,
+   "echo": [
+    "Undid the last change to the recreation."
+   ],
+   "model": "gemini-3.5-flash-lite"
+  },
+  {
+   "user": "Solo the bass.",
+   "expected": "bass soloed, nothing else changed",
+   "ok": true,
+   "reply": "I've soloed the bass.",
+   "error": null,
+   "echo": [
+    "SOLO Bass."
+   ],
+   "model": "gemini-3.5-flash-lite"
+  }
+ ],
+ "spend_usd": 0.0066
+}

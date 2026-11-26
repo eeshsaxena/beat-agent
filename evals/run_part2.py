@@ -1,6 +1,6 @@
 """Part 2 evals: the brief's chat sessions, run headlessly.
 
-    python -m evals.run_part2               # live: Claude interprets every message (needs ANTHROPIC_API_KEY)
+    python -m evals.run_part2               # live: an LLM interprets every message (ANTHROPIC_API_KEY or GEMINI_API_KEY)
     python -m evals.run_part2 --replay      # re-runs the recorded tool calls of the last live run, no API calls
     python -m evals.run_part2 --reference   # no LLM: the engine executes the answer key (evals/answer_key.py)
 
@@ -46,12 +46,26 @@ SESSIONS = [
     ("s5_A3", "A3", ["Cut beat 0 to beat 8.", "Delete bars 200–210."]),
     ("s6_A1", "A1", ["Sync A7 to A1, starting the overlap at A1's bar 33."]),
 ]
-MODE_TEXT = {"live": "live LLM (Claude interprets every message)",
+MODE_TEXT = {"live": "live LLM (the model interprets every message; no fallback to the grammar)",
              "replay": "replay of the recorded tool calls from the last live run (no LLM calls)",
              "reference": "reference: the engine executes the answer key; no LLM involved, so this tests the edit "
                           "engine, not the agent's interpretation",
              "offline": "offline grammar (beatagent/offline.py), no LLM. The grammar was written with these commands in "
                         "view, so its score here shows the fallback works, not that it generalises"}
+
+
+def repo_relative(obj):
+    """Paths in results are written relative to the repo, so they don't carry the machine's folders."""
+    if isinstance(obj, dict):
+        return {k: repo_relative(v) for k, v in obj.items()}
+    if isinstance(obj, list):
+        return [repo_relative(v) for v in obj]
+    if isinstance(obj, str) and len(obj) < 1000:
+        try:
+            return Path(obj).relative_to(ROOT).as_posix() if Path(obj).is_absolute() else obj
+        except ValueError:
+            return obj
+    return obj
 
 
 def load_grid(cid: str) -> BeatGrid:
@@ -133,7 +147,7 @@ def scripted_turn(agent: EditAgent, entry: dict, msg: str) -> AgentReply:
 def run(mode: str) -> dict:
     grids, library, results = {}, {}, {}
     rec_all = json.loads((REC / "part2_sessions.json").read_text()) if mode == "replay" else {}
-    out_root = OUT / mode if mode in ("reference", "offline") else OUT
+    out_root = OUT / mode if mode in ("reference", "offline", "replay") else OUT
     for sid, cid, msgs in SESSIONS:
         print(f"== {sid} on {cid}", flush=True)
         a = audio_io.load(pack.audio_path(cid))
@@ -147,6 +161,8 @@ def run(mode: str) -> dict:
                           replay=rec_all.get(sid) if mode == "replay" else None)
         if mode == "offline":
             agent.interpreter = "offline"
+        elif mode == "live":
+            agent.interpreter = "llm"  # an unavailable LLM is an error here, never a silent grammar fallback
         turns, transcript = [], []
         for i, m in enumerate(msgs, start=1):
             entry = KEY[sid][i - 1]
@@ -158,6 +174,8 @@ def run(mode: str) -> dict:
             t = {"turn": i, **r.to_dict(), "state_after": {"can_undo": sess.can_undo(), "can_redo": sess.can_redo(),
                                                             "history": sess.history_text()}}
             t["expected"] = {"expect": entry["expect"], "why": entry["why"]}
+            if mode == "live":
+                t["model"] = agent.loop.model
             if mode != "reference":
                 t["interpretation"] = grade(entry, t, grid_before)
                 print(f"  [interpretation vs answer key] {'OK' if t['interpretation']['ok'] else 'DIFFERENT'}", flush=True)
@@ -165,8 +183,10 @@ def run(mode: str) -> dict:
                 t["checks"] = check_turn(sess, cid, d, f"turn{i}")
             turns.append(t)
         (d / "transcript.txt").write_text("\n\n".join(transcript) + "\n", encoding="utf-8")
-        (d / "turns.json").write_text(json.dumps(turns, indent=1, default=str), encoding="utf-8")
-        results[sid] = {"track": cid, "turns": turns, "spend_usd": round(agent.loop.spend_usd, 4)}
+        turns = repo_relative(json.loads(json.dumps(turns, default=str)))
+        (d / "turns.json").write_text(json.dumps(turns, indent=1), encoding="utf-8")
+        results[sid] = {"track": cid, "turns": turns, "spend_usd": round(agent.loop.spend_usd, 4),
+                        "models": sorted({t["model"] for t in turns if t.get("model")})}
         if mode == "live":
             rec_all[sid] = agent.recorded
     if mode == "live":
@@ -176,8 +196,12 @@ def run(mode: str) -> dict:
 
 
 def write_markdown(results: dict, mode: str) -> str:
+    models = sorted({m for r in results.values() for m in r.get("models", [])})
+    spend = sum(r["spend_usd"] for r in results.values())
     L = ["# Part 2 results: chat edits on the beat grid", "", f"Mode: {MODE_TEXT[mode]}.",
-         f"LLM spend this run: ${sum(r['spend_usd'] for r in results.values()):.3f}.", ""]
+         *([f"Model: {', '.join(models)}."] if models else []),
+         f"LLM spend this run: ${spend:.3f}"
+         + (" (estimated from token counts)." if any(m.startswith("gemini") for m in models) else "."), ""]
     rows = [(sid, t) for sid, r in results.items() for t in r["turns"]]
     if mode != "reference":
         ok = sum(1 for _, t in rows if t.get("interpretation", {}).get("ok"))
@@ -237,7 +261,7 @@ def main(argv=None):
         mode = "reference"
     res = run(mode)
     RES.mkdir(parents=True, exist_ok=True)
-    name = {"reference": "part2_reference", "offline": "part2_offline"}.get(mode, "part2")
+    name = {"reference": "part2_reference", "offline": "part2_offline", "replay": "part2_replay"}.get(mode, "part2")
     (RES / f"{name}.json").write_text(json.dumps(res, indent=1, default=str), encoding="utf-8")
     (RES / f"{name}.md").write_text(write_markdown(res, mode), encoding="utf-8")
 

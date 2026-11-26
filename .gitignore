@@ -33,8 +33,12 @@ testpack/stand-in/*.mp3
 evals/out/part1/**/*.wav
 evals/out/part2/**/*.wav
 evals/out/part2/**/*.flac
-# The offline-grammar run's audio is byte-identical to the reference run's (sha256); keep one copy.
+# The offline-grammar and live-LLM runs' audio (WAV/FLAC) is byte-identical to the reference run's
+# (sha256), so the repo keeps one set of MP3 listening copies: reference/.
 evals/out/part2/offline/**/*.mp3
+evals/out/part2/s[0-9]_*/**/*.mp3
 
 # Release zips (scripts/package_artifacts.py)
 dist/
+# A replay re-runs the live run's recorded tool calls; its outputs duplicate the live run's.
+evals/out/part2/replay/

@@ -17,6 +17,7 @@ demucs==4.1.0
 onnxruntime==1.32.0
 resampy==0.4.3
 anthropic==2.13.0
+google-genai==3.6.1
 pydantic==2.14.4
 fastapi==0.165.0
 uvicorn==0.54.0

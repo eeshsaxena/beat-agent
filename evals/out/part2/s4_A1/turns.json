@@ -1,0 +1,178 @@
+[
+ {
+  "turn": 1,
+  "user": "Chop out the boring part.",
+  "reply": "That could be the quiet section without kick or bass from bars 65 to 76 (seconds 124.05 to 147.28), or the repetitive intro from bars 1 to 16 (seconds 0.18 to 31.15). Which one would you like to remove?",
+  "events": [
+   {
+    "type": "sections",
+    "sections": [
+     {
+      "bars": [
+       1,
+       16
+      ],
+      "time_s": [
+       0.179,
+       31.147
+      ],
+      "n_bars": 16,
+      "band_energy_db_vs_track": {
+       "sub": -0.0,
+       "low-mid": -2.9,
+       "mid": -12.9,
+       "presence": -5.3,
+       "air": -3.0
+      },
+      "bar_to_bar_variation": 0.06,
+      "observations": [
+       "thin arrangement (little low-mid and mid content: few instruments)",
+       "very repetitive (bars nearly identical)",
+       "intro"
+      ]
+     },
+     {
+      "bars": [
+       17,
+       64
+      ],
+      "time_s": [
+       31.147,
+       124.05
+      ],
+      "n_bars": 48,
+      "band_energy_db_vs_track": {
+       "sub": 0.0,
+       "low-mid": 0.1,
+       "mid": -0.1,
+       "presence": -0.4,
+       "air": -1.0
+      },
+      "bar_to_bar_variation": 0.25,
+      "observations": [
+       "very repetitive (bars nearly identical)"
+      ]
+     },
+     {
+      "bars": [
+       65,
+       76
+      ],
+      "time_s": [
+       124.05,
+       147.276
+      ],
+      "n_bars": 12,
+      "band_energy_db_vs_track": {
+       "sub": -33.1,
+       "low-mid": -0.8,
+       "mid": 2.3,
+       "presence": -19.4,
+       "air": -43.5
+      },
+      "bar_to_bar_variation": 1.01,
+      "observations": [
+       "no kick/bass (sub band far below the rest of the track)"
+      ]
+     },
+     {
+      "bars": [
+       77,
+       80
+      ],
+      "time_s": [
+       147.276,
+       155.018
+      ],
+      "n_bars": 4,
+      "band_energy_db_vs_track": {
+       "sub": -33.7,
+       "low-mid": -0.8,
+       "mid": 2.2,
+       "presence": -5.5,
+       "air": -17.1
+      },
+      "bar_to_bar_variation": 2.19,
+      "observations": [
+       "no kick/bass (sub band far below the rest of the track)"
+      ]
+     },
+     {
+      "bars": [
+       81,
+       168
+      ],
+      "time_s": [
+       155.018,
+       325.34
+      ],
+      "n_bars": 88,
+      "band_energy_db_vs_track": {
+       "sub": 0.0,
+       "low-mid": 0.2,
+       "mid": 0.3,
+       "presence": 0.0,
+       "air": 0.1
+      },
+      "bar_to_bar_variation": 0.25,
+      "observations": []
+     },
+     {
+      "bars": [
+       169,
+       184
+      ],
+      "time_s": [
+       325.34,
+       358.809
+      ],
+      "n_bars": 16,
+      "band_energy_db_vs_track": {
+       "sub": -0.3,
+       "low-mid": -3.2,
+       "mid": -13.1,
+       "presence": -5.5,
+       "air": -3.2
+      },
+      "bar_to_bar_variation": 0.26,
+      "observations": [
+       "thin arrangement (little low-mid and mid content: few instruments)",
+       "outro"
+      ]
+     }
+    ]
+   }
+  ],
+  "error": null,
+  "usage": {
+   "input": 16887,
+   "output": 82,
+   "cache_read": 0,
+   "cache_write": 0,
+   "usd": 0.00528
+  },
+  "tool_calls": [
+   {
+    "tool": "find_sections",
+    "input": {}
+   }
+  ],
+  "state_after": {
+   "can_undo": false,
+   "can_redo": false,
+   "history": "  (no edits yet)"
+  },
+  "expected": {
+   "expect": "ask",
+   "why": "'boring' is subjective: show measured candidate sections and ask; no edit"
+  },
+  "model": "gemini-3.5-flash-lite",
+  "interpretation": {
+   "ok": true,
+   "expected": "measured sections + a question, no edit",
+   "got": [
+    "sections"
+   ]
+  }
+ }
+]
