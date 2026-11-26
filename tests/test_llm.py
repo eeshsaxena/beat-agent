@@ -110,3 +110,94 @@ def test_a_model_name_only_goes_to_its_own_provider():
     loop = llm.AutoLoop("sys", [], model="claude-sonnet-5-5")
     assert loop._loop("gemini")._model is None
     assert llm.AutoLoop("sys", [], model="gemini-3.5-flash-lite")._loop("gemini")._model == "gemini-3.5-flash-lite"
+
+
+def _calls_then_fail(results):
+    seq = list(results)
+
+    def create(*_a, **_k):
+        r = seq.pop(0)
+        if isinstance(r, Exception):
+            raise r
+        return r
+    return create
+
+
+def test_a_failure_mid_turn_rolls_back_the_whole_turn(monkeypatch, tmp_path):
+    """Popping only the last message used to leave a tool call with no result in the history,
+    which the API rejects on every later turn."""
+    from google.genai import types
+
+    monkeypatch.setattr(llm, "USAGE_LOG", tmp_path / "usage.jsonl")
+    ran = []
+    tool = llm.Tool("t", "test tool", {"type": "object", "properties": {}}, lambda inp: ran.append(1) or {"ok": True})
+
+    g = llm.GeminiToolLoop("sys", [tool], model="gemini-test")
+    call = types.GenerateContentResponse(candidates=[types.Candidate(content=types.Content(
+        role="model", parts=[types.Part(function_call=types.FunctionCall(name="t", args={}))]))])
+    monkeypatch.setattr(g, "_create", _calls_then_fail([call, LLMUnavailable("busy")]))
+    res = g.run("first message")
+    assert ran == [1] and res.error == "busy" and not res.unavailable  # the tool ran, so this is not "unreachable"
+    assert g.contents == []
+
+    c = llm.ToolLoop("sys", [tool], model="claude-test")
+    use = SimpleNamespace(stop_reason="tool_use", usage=SimpleNamespace(input_tokens=1, output_tokens=1),
+                          content=[SimpleNamespace(type="tool_use", name="t", input={}, id="u1")])
+    monkeypatch.setattr(c, "_create", _calls_then_fail([use, LLMUnavailable("busy")]))
+    c.messages = [{"role": "user", "content": "earlier"}, {"role": "assistant", "content": "ok"}]
+    c.run("second message")
+    assert c.messages == [{"role": "user", "content": "earlier"}, {"role": "assistant", "content": "ok"}]
+
+
+def test_an_unreachable_provider_falls_through_to_the_next(monkeypatch):
+    class Fake:
+        def __init__(self, res):
+            self.res, self.model, self.spend_usd = res, "m", 0.0
+
+        def run(self, _):
+            return self.res
+
+    loop = llm.AutoLoop("sys", [])
+    monkeypatch.setattr(llm, "providers", lambda: ["anthropic", "gemini"])
+    loop._loops = {"anthropic": Fake(llm.LoopResult("", error="Could not reach the API.", unavailable=True)),
+                   "gemini": Fake(llm.LoopResult("done"))}
+    assert loop.run("hi").text == "done" and loop.provider == "gemini"
+    assert "anthropic" not in llm._DOWN  # a network error doesn't rule a provider out
+
+
+def test_a_failed_model_listing_is_reported_not_raised(monkeypatch):
+    from google.genai import errors
+
+    class Broken:
+        def __init__(self, exc):
+            self.models = SimpleNamespace(list=lambda: (_ for _ in ()).throw(exc))
+
+    monkeypatch.setattr(llm, "_GEMINI_CANDIDATES", [])
+    bad_key = errors.ClientError(400, {"error": {"code": 400, "message": "API key not valid.", "status": "S"}})
+    with pytest.raises(LLMUnavailable, match="rejected"):
+        llm.gemini_candidates(Broken(bad_key))
+    with pytest.raises(LLMUnavailable, match="Could not reach") as e:
+        llm.gemini_candidates(Broken(ConnectionError("down")))
+    assert gemini_failure(e.value) == "fatal" and not is_permanent(str(e.value))
+
+
+def test_the_last_answering_model_is_remembered_for_a_few_hours(monkeypatch, tmp_path):
+    import json
+    import time
+
+    monkeypatch.setattr(llm, "GEMINI_STATE", tmp_path / "gemini_last_model.json")
+    assert llm._remembered_gemini_model() is None
+    llm._remember_gemini_model("gemini-3.5-flash-lite")
+    assert llm._remembered_gemini_model() == "gemini-3.5-flash-lite"
+    llm.GEMINI_STATE.write_text(json.dumps({"model": "gemini-old", "t": time.time() - llm.GEMINI_STATE_TTL_S - 1}))
+    assert llm._remembered_gemini_model() is None
+    llm.GEMINI_STATE.write_text("not json")
+    assert llm._remembered_gemini_model() is None
+
+    monkeypatch.setattr(llm, "_GEMINI_GOOD", [])
+    monkeypatch.setattr(llm, "_GEMINI_COOL", {})
+    llm._remember_gemini_model("gemini-3.5-flash-lite")
+    g = llm.GeminiToolLoop("sys", [])
+    monkeypatch.setattr(llm, "gemini_candidates", lambda _c: ["gemini-3.8-flash", "gemini-3.5-flash-lite"])
+    monkeypatch.setattr(g, "client", lambda: None)
+    assert g._order() == ["gemini-3.5-flash-lite", "gemini-3.8-flash"]

@@ -55,6 +55,7 @@
   audio { width: 100%; margin-top: 10px; }
   .chat { display: flex; flex-direction: column; height: 560px; }
   .msgs { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px; padding-right: 4px; }
+  .msg.user.pending { opacity: 0.6; }
   .msg.user { align-self: flex-end; background: var(--panel2); border: 1px solid var(--line); padding: 7px 11px; border-radius: 10px 10px 2px 10px; max-width: 90%; }
   .msg.agent { color: var(--ink); max-width: 100%; }
   .echo { font-family: var(--mono); font-size: 12.3px; line-height: 1.5; padding: 7px 9px; border-radius: 6px; border-left: 3px solid var(--ok); background: color-mix(in srgb, var(--ok) 9%, transparent); margin-top: 6px; white-space: pre-wrap; }
@@ -331,6 +332,14 @@ window.addEventListener("resize", draw);
 (function loop() { if (VIEW && !$("player").paused) draw(); requestAnimationFrame(loop); })();
 
 // chat
+function noteModel(r) {  // the badge names the model that actually answered
+  if (r && r.llm_note && $("llm").className.includes("ok")) $("llm").textContent = `chat: ${r.llm_note}`;
+}
+function pending(box, text) {  // show the user's message at once; the reply can take a while
+  if (box.querySelector(".empty")) box.innerHTML = "";
+  const u = document.createElement("div"); u.className = "msg user pending"; u.textContent = text;
+  box.appendChild(u); box.scrollTop = box.scrollHeight; return u;
+}
 function addEcho(box, r) {
   if (box.querySelector(".empty")) box.innerHTML = "";
   const u = document.createElement("div"); u.className = "msg user"; u.textContent = r.user; box.appendChild(u);
@@ -365,10 +374,10 @@ function addEcho(box, r) {
 }
 async function send() {
   const m = $("msg").value.trim(); if (!m || !SID) return;
-  $("msg").value = ""; $("send").disabled = true;
+  $("msg").value = ""; $("send").disabled = true; const p = pending($("msgs"), m);
   try { const { job } = await api(`/api/sessions/${SID}/chat`, { method: "POST", body: JSON.stringify({ message: m, confirm: $("confirm").checked }) });
-    const r = await runJob(job, $("edit-status")); addEcho($("msgs"), r); await refresh(); }
-  catch (e) { addEcho($("msgs"), { user: m, error: e.message, events: [] }); }
+    const r = await runJob(job, $("edit-status")); p.remove(); addEcho($("msgs"), r); noteModel(r); await refresh(); }
+  catch (e) { p.remove(); addEcho($("msgs"), { user: m, error: e.message, events: [] }); }
   finally { $("send").disabled = false; $("msg").focus(); }
 }
 $("send").addEventListener("click", send); $("msg").addEventListener("keydown", (e) => { if (e.key === "Enter") send(); });
@@ -411,7 +420,7 @@ let RID = null;
 $("dorec").addEventListener("click", async () => {
   $("dorec").disabled = true;
   try { const { job } = await api("/api/recreations", { method: "POST", body: JSON.stringify({ clip: $("clip").value }) });
-    const r = await runJob(job, $("rec-status")); RID = r.recreation; $("rmsgs").innerHTML = ""; await refreshRec(); }
+    const r = await runJob(job, $("rec-status")); RID = r.recreation; $("rmsgs").innerHTML = REC_HINT; await refreshRec(); }
   catch (e) { } finally { $("dorec").disabled = false; }
 });
 async function refreshRec() {
@@ -423,11 +432,13 @@ async function refreshRec() {
     `<tr><td>Tempo</td><td class="num" colspan="4">${(+v.tempo_bpm).toFixed(2)} BPM · ${v.bars} bars</td></tr>`;
   $("rmsg").disabled = $("rsend").disabled = false;
 }
+const REC_HINT = $("rmsgs").innerHTML;  // the starter hint, restored for each new recreation
 async function rsend() {
   const m = $("rmsg").value.trim(); if (!m || !RID) return; $("rmsg").value = ""; $("rsend").disabled = true;
+  const p = pending($("rmsgs"), m);
   try { const { job } = await api(`/api/recreations/${RID}/chat`, { method: "POST", body: JSON.stringify({ message: m }) });
-    const r = await runJob(job, $("rec-status")); addEcho($("rmsgs"), r); await refreshRec(); }
-  catch (e) { addEcho($("rmsgs"), { user: m, error: e.message, events: [] }); } finally { $("rsend").disabled = false; }
+    const r = await runJob(job, $("rec-status")); p.remove(); addEcho($("rmsgs"), r); noteModel(r); await refreshRec(); }
+  catch (e) { p.remove(); addEcho($("rmsgs"), { user: m, error: e.message, events: [] }); } finally { $("rsend").disabled = false; }
 }
 $("rsend").addEventListener("click", rsend); $("rmsg").addEventListener("keydown", (e) => { if (e.key === "Enter") rsend(); });
 

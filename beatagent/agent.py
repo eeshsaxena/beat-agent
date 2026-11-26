@@ -1,4 +1,4 @@
-"""The edit agent: Claude interprets chat messages into typed edit operations.
+"""The edit agent: an LLM (Claude or Gemini) interprets chat messages into typed edit operations.
 
 Division of labour:
 * The LLM reads the user's words plus a factual summary of the beat grid (computed by

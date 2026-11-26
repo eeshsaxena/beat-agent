@@ -63,7 +63,8 @@ The brief's test pack (A1–A7 with beat and downbeat annotations, P1–P4 with 
 * **Chose:** typed tools.
   * Claude Opus 5.5 through the Messages API with tool use, or Gemini through Google's API with function calling. `BEAT_AGENT_LLM` picks one; with both keys, Claude is tried first. Model and effort are environment variables.
     * Both loops expose the same tools, built from the same pydantic schemas. For Gemini the schema is reduced to the subset its function declarations accept: `$ref` inlined, `oneOf` → `anyOf`, `const` → one-value `enum`.
-    * Gemini models are often overloaded (503s, 60-second deadlines). The loop ranks this key's stable models (Flash newest first, then Flash-Lite, then Pro), skips a busy one for the next, and records which model answered each turn.
+    * Gemini models are often overloaded (503s, 60-second deadlines). The loop ranks this key's stable models (Flash newest first, then Flash-Lite, then Pro), skips a busy one for the next, and records which model answered each turn. The last model that answered is remembered for six hours (`runtime/gemini_last_model.json`), so a restart doesn't wait through the busy ones again.
+    * A request that fails partway through a turn rolls back the whole turn from the model's history: a tool call left without its result would make the API reject every later message. Edits the turn already applied stay applied, and the next state summary reports them.
   * The LLM sees only a factual grid summary computed by code (beats, bars, tempo segments, the last full bar before each tempo change, irregular bars) and the edit history.
   * It returns pydantic-typed ops. Code validates every op and writes the echo the user sees; the LLM's words are shown separately.
   * **Subjective requests** ("the boring part"): the LLM must call `find_sections`, which measures band energy per bar, section boundaries and repetitiveness, then ask the user to choose. Taste is not delegated to the model.
@@ -77,7 +78,7 @@ The brief's test pack (A1–A7 with beat and downbeat annotations, P1–P4 with 
   * An extra round trip per message and a dependency on an API key.
   * The fallback grammar handles only a documented subset of phrasings.
   * I chose it over a local open model: a small model on a laptop CPU is slow, still fallible, and a multi-GB download.
-* **Would change my mind:** measured interpretation errors on the live sessions. I would add tool-level few-shot examples or a second check that compares the LLM's resolved ops with the grammar's where the grammar understands the message.
+* **Would change my mind:** measured interpretation errors on the live sessions. I would add tool-level few-shot examples or a second check that compares the LLM's resolved ops with the grammar's where the grammar understands the message. So far: 10/10 live turns through Gemini Flash-Lite and 7/7 recreation-chat turns, with no errors to act on yet; the sample is small.
 
 ## 6. Sync: grid-based mapping, Rubber Band pinned at anchors, measured kicks
 

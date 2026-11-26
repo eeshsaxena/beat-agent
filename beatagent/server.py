@@ -185,17 +185,20 @@ def check_llm() -> None:
             if p == "anthropic":
                 import anthropic
 
-                anthropic.Anthropic().models.list(limit=1)
+                anthropic.Anthropic(timeout=15).models.list(limit=1)  # a stalled network must not block startup
                 LLM_STATUS.update(provider="anthropic", note="Claude")
             else:
                 from google import genai
+                from google.genai import types
 
-                model = llm.pick_gemini_model(genai.Client(api_key=llm.gemini_key()))
+                client = genai.Client(api_key=llm.gemini_key(), http_options=types.HttpOptions(timeout=15_000))
+                model = llm.pick_gemini_model(client)
                 LLM_STATUS.update(provider="gemini", model=model, note=f"Gemini ({model} first, others if busy)")
             return
         except Exception as e:  # noqa: BLE001
-            code = getattr(e, "status_code", None) or getattr(e, "code", None)
-            if code in (401, 403) or "API key not valid" in str(e):
+            cause = e.__cause__ or e
+            code = getattr(cause, "status_code", None) or getattr(cause, "code", None)
+            if code in (401, 403) or "API key not valid" in str(cause) or llm.is_permanent(str(e)):
                 notes.append(f"{p} key rejected ({code})")
                 llm.mark_down(p)  # only a rejected key rules a provider out; a network blip doesn't
             else:
@@ -312,12 +315,13 @@ def session_chat(sid: str, req: ChatReq):
         raise HTTPException(400, "Empty message")
 
     def work(say):
-        say("Interpreting the message")
+        say("Interpreting the message (if the LLM is busy, the first reply can take a minute)")
         with SESSIONS[sid]["lock"]:
             ag = _agent(sid)
             ag.confirm = req.confirm
             r = ag.ask(msg).to_dict()
             _note_model(ag)
+        r["llm_note"] = LLM_STATUS.get("note")
         for ev in r["events"]:
             for k, p in (ev.get("paths") or {}).items():
                 ev.setdefault("urls", {})[k] = "/api/files/" + Path(p).relative_to(RUNTIME).as_posix()
@@ -453,11 +457,12 @@ def recreation_chat(rid: str, req: ChatReq):
         raise HTTPException(404, "Unknown recreation")
 
     def work(say):
-        say("Interpreting the message")
+        say("Interpreting the message (if the LLM is busy, the first reply can take a minute)")
         r = RECREATIONS[rid]
         with r["lock"]:
             res = r["agent"].ask(req.message.strip()[:2000])
             _note_model(r["agent"])
+        res["llm_note"] = LLM_STATUS.get("note")
         r["chat"].append(res)
         if any(ev["type"] in ("applied", "undo") for ev in res["events"]):
             r["version"] += 1

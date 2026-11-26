@@ -1,4 +1,4 @@
-"""Minimal Claude tool-use loop shared by the edit agent and the recreation agent.
+"""LLM tool-use loops (Claude and Gemini) shared by the edit agent and the recreation agent.
 
 The LLM only produces tool calls (typed operations) and short replies. Every
 tool call is executed by deterministic Python, which validates it first.
@@ -132,19 +132,20 @@ class ToolLoop:
         return u
 
     def run(self, user_content: str) -> LoopResult:
+        start = len(self.messages)
         self.messages.append({"role": "user", "content": [{"type": "text", "text": user_content}]})
         calls, total = [], {"input": 0, "output": 0, "cache_read": 0, "cache_write": 0, "usd": 0.0}
         for _ in range(self.max_steps):
             try:
                 resp = self._create()
             except LLMUnavailable as e:
-                self._rollback_user()
+                self._rollback(start)
                 return LoopResult("", calls, total, str(e), unavailable=not calls)
             u = self._account(resp.usage)
             for k in total:
                 total[k] += u[k]
             if resp.stop_reason == "refusal":
-                self._rollback_user()
+                self._rollback(start)
                 return LoopResult("", calls, total, "The model declined to handle that message.")
             self.messages.append({"role": "assistant", "content": resp.content})
             uses = [b for b in resp.content if b.type == "tool_use"]
@@ -170,9 +171,11 @@ class ToolLoop:
             self.messages.append({"role": "user", "content": results})
         return LoopResult("", calls, total, "Stopped after too many tool steps.")
 
-    def _rollback_user(self):
-        if self.messages and self.messages[-1]["role"] == "user":
-            self.messages.pop()
+    def _rollback(self, start: int):
+        """Drop this turn from the history. Popping only the last message could leave a tool call with no
+        result, which the API rejects on every later turn. Edits the turn already applied stay applied:
+        the next turn's state summary (written by code) tells the model about them."""
+        del self.messages[start:]
 
 
 def _text(resp) -> str:
@@ -190,6 +193,24 @@ _GEMINI_GOOD: list[str] = []  # the model that last answered, tried first by eve
 GEMINI_TIMEOUT_MS = 40_000  # per request
 GEMINI_COOL_S = 300  # a failed model goes to the back of the list for this long
 GEMINI_TURN_BUDGET_S = 120  # stop trying further models after this long
+GEMINI_STATE = USAGE_LOG.parent / "gemini_last_model.json"  # remembered across restarts for a few hours
+GEMINI_STATE_TTL_S = 6 * 3600
+
+
+def _remembered_gemini_model() -> str | None:
+    try:
+        d = json.loads(GEMINI_STATE.read_text())
+        return d["model"] if time.time() - d["t"] < GEMINI_STATE_TTL_S else None
+    except (OSError, ValueError, KeyError, TypeError):
+        return None
+
+
+def _remember_gemini_model(model: str) -> None:
+    try:
+        GEMINI_STATE.parent.mkdir(parents=True, exist_ok=True)
+        GEMINI_STATE.write_text(json.dumps({"model": model, "t": time.time()}))
+    except OSError:
+        pass
 _KEEP = {"type", "properties", "required", "items", "enum", "anyOf", "description", "minimum", "maximum",
          "minItems", "maxItems", "nullable", "format"}
 
@@ -240,12 +261,21 @@ def gemini_candidates(client) -> list[str]:
         return _GEMINI_CANDIDATES
     import re
 
+    from google.genai import errors
+
     names = []
-    for m in client.models.list():
-        name = (m.name or "").split("/")[-1]
-        actions = getattr(m, "supported_actions", None) or []
-        if "generateContent" in actions and name.startswith("gemini-"):
-            names.append(name)
+    try:
+        for m in client.models.list():
+            name = (m.name or "").split("/")[-1]
+            actions = getattr(m, "supported_actions", None) or []
+            if "generateContent" in actions and name.startswith("gemini-"):
+                names.append(name)
+    except errors.APIError as e:
+        if getattr(e, "code", None) in (401, 403) or "API key not valid" in str(e):
+            raise LLMUnavailable(f"The Gemini API key was rejected ({e.code}).") from e
+        raise LLMUnavailable(f"Could not list Gemini models ({e.code}).") from e
+    except Exception as e:  # network errors and timeouts
+        raise LLMUnavailable(f"Could not reach the Gemini API ({type(e).__name__}).") from e
     stable = [n for n in names if not re.search(r"preview|exp|image|tts|audio|live|embed|thinking|latest", n)]
 
     def version(n):
@@ -336,7 +366,11 @@ class GeminiToolLoop:
                     part.thought_signature = None
 
     def _order(self) -> list[str]:
-        order = list(dict.fromkeys([m for m in (self._model, *_GEMINI_GOOD) if m] + gemini_candidates(self.client())))
+        """This loop's model, then the last model that answered (in this process, or in one that ran in the
+        last few hours: Gemini overload lasts, so a restart shouldn't wait through the busy models again),
+        then the ranked candidates; models that failed recently go to the back."""
+        good = _GEMINI_GOOD or [m for m in [_remembered_gemini_model()] if m]
+        order = list(dict.fromkeys([m for m in (self._model, *good) if m] + gemini_candidates(self.client())))
         now = time.time()
         fresh = [m for m in order if now - _GEMINI_COOL.get(m, 0.0) > GEMINI_COOL_S]
         return fresh + [m for m in order if m not in fresh]
@@ -366,7 +400,9 @@ class GeminiToolLoop:
                     _GEMINI_COOL[model] = time.time()
                     break
                 self._model = model
-                _GEMINI_GOOD[:] = [model]
+                if _GEMINI_GOOD != [model]:
+                    _GEMINI_GOOD[:] = [model]
+                    _remember_gemini_model(model)
                 _GEMINI_COOL.pop(model, None)
                 return resp
         raise LLMUnavailable(f"Every Gemini model was busy or unavailable (last: {last}).")
@@ -409,13 +445,14 @@ class GeminiToolLoop:
     def run(self, user_content: str) -> LoopResult:
         from google.genai import types
 
+        start = len(self.contents)
         self.contents.append(types.Content(role="user", parts=[types.Part(text=user_content)]))
         calls, total = [], {"input": 0, "output": 0, "cache_read": 0, "cache_write": 0, "usd": 0.0}
         for _ in range(self.max_steps):
             try:
                 resp = self._create()
             except LLMUnavailable as e:
-                self._rollback_user()
+                self._rollback(start)
                 return LoopResult("", calls, total, str(e), unavailable=not calls)
             u = self._account(resp)
             for k in total:
@@ -423,13 +460,16 @@ class GeminiToolLoop:
             cands = resp.candidates or []
             if not cands or cands[0].content is None:
                 reason = getattr(cands[0], "finish_reason", None) if cands else None
-                self._rollback_user()
+                self._rollback(start)
                 return LoopResult("", calls, total, f"Gemini returned no answer ({reason or 'blocked'}).")
             content = cands[0].content
             self.contents.append(content)  # as returned, so thought signatures are preserved
             fcs = [p.function_call for p in (content.parts or []) if p.function_call]
             text = "".join(p.text for p in (content.parts or []) if p.text and not p.thought).strip()
             if not fcs:
+                if not text and not calls:
+                    reason = getattr(cands[0], "finish_reason", None)
+                    return LoopResult("", calls, total, f"Gemini returned an empty reply ({reason}).")
                 return LoopResult(text, calls, total)
             parts = []
             for fc in fcs:
@@ -448,9 +488,9 @@ class GeminiToolLoop:
             self.contents.append(types.Content(role="user", parts=parts))
         return LoopResult("", calls, total, "Stopped after too many tool steps.")
 
-    def _rollback_user(self):
-        if self.contents and self.contents[-1].role == "user":
-            self.contents.pop()
+    def _rollback(self, start: int):
+        """Drop this turn from the history (see ToolLoop._rollback)."""
+        del self.contents[start:]
 
 
 # =============================================================================
@@ -505,11 +545,14 @@ class AutoLoop:
         return sum(lp.spend_usd for lp in self._loops.values())
 
     def run(self, user_content: str) -> LoopResult:
+        """A provider that could not be reached at all (no tool ran) falls through to the next one; it is
+        ruled out for the rest of the process only when its key is missing or rejected."""
         last = LoopResult("", [], {}, "No LLM key is configured (ANTHROPIC_API_KEY or GEMINI_API_KEY).", unavailable=True)
         for p in providers():
             res = self._loop(p).run(user_content)
-            if res.unavailable and is_permanent(res.error):
-                mark_down(p)
+            if res.unavailable:
+                if is_permanent(res.error):
+                    mark_down(p)
                 last = res
                 continue
             self.provider = p
