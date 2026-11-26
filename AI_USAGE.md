@@ -47,6 +47,9 @@
     *Check:* `agent.interpreter = "llm"` in `evals/run_part2.py`; the `model` field in `evals/results/part2.json`.
 15. **`make evals` would have skipped the live LLM with a working key.** The CLI chose between a live run and a replay by checking only `ANTHROPIC_API_KEY`, so with just a Gemini key it would have replayed old tool calls and still printed live-looking results. Caught while wiring in Gemini, by reading every place that checked for a key. Fixed with one `any_llm_key()` used everywhere; replay now writes its own `part2_replay.md`.
 
+16. **The web app could show a beat grid that belonged to different audio.** It cached each track's grid in memory by the track's name. Re-uploading a different file under the same name, or uploading a file called `A1.wav`, reused the old grid for the new audio. Caught in a review pass by following an upload through the server. Fixed: the cache key is the file's path, size and modification time, and an upload can't take a pack track's name. The same pass replaced a string-prefix path check (which admitted a sibling folder such as `runtime_old/`) with a real containment check.
+    *Check:* `tests/test_server.py`.
+
 ### Caught in my own review
 
 **TODO (you):** add at least one case you found yourself while reading the code, with the file, the line, what was off and how you noticed. Look closely at the edit conventions in `edl.py` against the system prompt in `agent.py`, and at the open-hat rule in `recreate.py`.

@@ -1,11 +1,11 @@
 """Command line.
 
     python -m beatagent.cli analyze  FILE [--out DIR]       beat grid JSON + click audition
-    python -m beatagent.cli chat     FILE                   interactive chat edits (needs ANTHROPIC_API_KEY)
+    python -m beatagent.cli chat     FILE                   interactive chat edits (an LLM key, else the offline grammar)
     python -m beatagent.cli sync     A B [--bar-a 33] [--bar-b 1] [--seconds 60] [--out DIR]
     python -m beatagent.cli recreate CLIP [--out DIR]       score.json + page.html + offline render
     python -m beatagent.cli evals    [--replay]             all evals (Part 2 replays recorded LLM calls with --replay)
-    python -m beatagent.cli demo     [--replay]             evals, then the web app on http://127.0.0.1:8000
+    python -m beatagent.cli demo     [--live]               evals (Part 2 replayed unless --live), then the web app
 """
 from __future__ import annotations
 
@@ -50,7 +50,7 @@ def _chat(a):
             print(sess.export(Path(f"{sess.name}_edited")))
             continue
         if msg:
-            print(format_reply(agent.ask(msg)))
+            print(format_reply(agent.ask(msg), echo_user=False))
 
 
 def _sync(a):
@@ -95,6 +95,9 @@ def _evals(a):
 
 
 def _demo(a):
+    # The demo replays Part 2's recorded LLM calls unless --live: starting the app shouldn't spend API money
+    # or overwrite the committed live results. `make evals` / `cli evals` is the live run.
+    a.replay = not getattr(a, "live", False)
     _evals(a)
     from .server import main as serve
 
@@ -112,8 +115,8 @@ def main(argv=None):
     p.add_argument("--bar-a", type=int, default=33); p.add_argument("--bar-b", type=int, default=1)  # noqa: E702
     p.add_argument("--seconds", type=float, default=60.0); p.add_argument("--out"); p.set_defaults(fn=_sync)  # noqa: E702
     p = sub.add_parser("recreate"); p.add_argument("file"); p.add_argument("--out"); p.set_defaults(fn=_recreate)  # noqa: E702
-    for name, fn in (("evals", _evals), ("demo", _demo)):
-        p = sub.add_parser(name); p.add_argument("--replay", action="store_true"); p.set_defaults(fn=fn)  # noqa: E702
+    p = sub.add_parser("evals"); p.add_argument("--replay", action="store_true"); p.set_defaults(fn=_evals)  # noqa: E702
+    p = sub.add_parser("demo"); p.add_argument("--live", action="store_true"); p.set_defaults(fn=_demo)  # noqa: E702
     a = ap.parse_args(argv)
     a.fn(a)
 

@@ -64,16 +64,24 @@ def _path(track_id: str) -> Path:
     return lib[track_id]
 
 
+def _grid_key(path: Path) -> str:
+    """A grid belongs to a file's contents, not its name: re-uploading a different file under the same
+    name must not reuse the old grid."""
+    st = path.stat()
+    return f"{path.resolve()}|{st.st_size}|{st.st_mtime_ns}"
+
+
 def _grid_for(track_id: str, audio: audio_io.Audio, say) -> BeatGrid:
-    if track_id in GRIDS:
-        return GRIDS[track_id]
+    key = _grid_key(audio.path) if audio.path else track_id
+    if key in GRIDS:
+        return GRIDS[key]
     cached = GRID_CACHE / track_id / "grid.json"
     if cached.exists() and audio.path and audio.path.parent == PACK:
         say("Loading the cached beat grid from the evals")
         g = BeatGrid.from_dict(json.loads(cached.read_text()))
     else:
         g = tracking.analyze(audio, progress=say)
-    GRIDS[track_id] = g
+    GRIDS[key] = g
     return g
 
 
@@ -210,15 +218,28 @@ def check_llm() -> None:
         os.environ["BEAT_AGENT_INTERPRETER"] = "offline"
 
 
+MAX_UPLOAD_MB = int(os.environ.get("BEAT_AGENT_MAX_UPLOAD_MB", "300"))
+
+
 @app.post("/api/upload")
 async def upload(file: UploadFile = File(...)):
     ext = Path(file.filename or "").suffix.lower()
     if ext not in AUDIO_EXT:
-        raise HTTPException(400, f"Unsupported file type {ext!r}; use WAV, FLAC or MP3.")
+        raise HTTPException(400, f"Unsupported file type {ext!r}; use WAV, FLAC, MP3, AIFF or OGG.")
     UPLOADS.mkdir(parents=True, exist_ok=True)
     stem = "".join(c for c in Path(file.filename).stem if c.isalnum() or c in "-_")[:40] or "upload"
+    if PACK.exists() and any(q.stem == stem for q in PACK.iterdir()):
+        stem = f"{stem}-upload"  # an upload must not shadow a pack track (A1, P2, ...)
     dest = UPLOADS / f"{stem}{ext}"
-    dest.write_bytes(await file.read())
+    size, limit = 0, MAX_UPLOAD_MB * 1024 * 1024
+    with open(dest, "wb") as f:
+        while chunk := await file.read(1 << 20):
+            size += len(chunk)
+            if size > limit:
+                f.close()
+                dest.unlink(missing_ok=True)
+                raise HTTPException(413, f"The file is over {MAX_UPLOAD_MB} MB (BEAT_AGENT_MAX_UPLOAD_MB).")
+            f.write(chunk)
     try:
         sf.info(str(dest))
     except Exception:
@@ -479,7 +500,7 @@ def original(track_id: str):
 @app.get("/api/files/{path:path}")
 def files(path: str):
     p = (RUNTIME / path).resolve()
-    if not str(p).startswith(str(RUNTIME.resolve())) or not p.exists():
+    if not p.is_relative_to(RUNTIME.resolve()) or not p.is_file():  # a prefix test would admit runtime_old/
         raise HTTPException(404, "Not found")
     return FileResponse(p)
 

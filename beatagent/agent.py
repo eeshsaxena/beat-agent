@@ -274,9 +274,10 @@ class EditAgent:
                           rec.get("tool_calls", []))
 
 
-def format_reply(r: AgentReply) -> str:
-    """Plain-text rendering used by the CLI and the eval transcripts."""
-    lines = [f"> {r.user}"]
+def format_reply(r: AgentReply, echo_user: bool = True) -> str:
+    """Plain-text rendering used by the CLI (which already shows what was typed: echo_user=False) and the
+    eval transcripts."""
+    lines = [f"> {r.user}"] if echo_user else []
     if r.error:
         lines.append(f"[error] {r.error}")
     if r.text:
@@ -293,6 +294,10 @@ def format_reply(r: AgentReply) -> str:
             lines.append(f"  [refused by code] {ev['message']}")
         elif ev["type"] == "sections":
             lines.append(f"  [measured {len(ev['sections'])} sections]")
+            if not echo_user:  # interactive: show the measured candidates, not just their count
+                for sec in ev["sections"]:
+                    lines.append(f"    bars {sec['bars'][0]}-{sec['bars'][1]} ({sec['time_s'][0]}-{sec['time_s'][1]} s): "
+                                 f"{', '.join(sec['observations']) or 'no flags'}")
     return "\n".join(lines)
 
 

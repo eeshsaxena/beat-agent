@@ -1,4 +1,5 @@
-# One command: `make demo` (setup if needed, all evals, then the web app on http://127.0.0.1:8000).
+# One command: `make demo` (setup if needed, all evals with Part 2 replayed, then the web app on
+# http://127.0.0.1:8000). `make evals` runs Part 2 and the recreation chat live when an LLM key is set.
 # Windows without make: `python scripts/setup.py` then `.venv\Scripts\python -m beatagent.cli demo`.
 PYTHON ?= python3
 ifeq ($(OS),Windows_NT)
@@ -27,8 +28,11 @@ serve:
 testpack:
 	$(VPY) -m testpack.generate
 
+# Removes what the app and `make evals` regenerate but git doesn't track (runtime state, full-resolution
+# Part 1/2 audio, release zips). evals/out also holds committed grids, reports and MP3s, so it is not wiped.
 clean:
-	rm -rf runtime evals/out
+	rm -rf runtime dist
+	find evals/out/part1 evals/out/part2 -type f \( -name '*.wav' -o -name '*.flac' \) -delete
 
 test:
 	$(VPY) -m pytest -q tests

@@ -23,7 +23,7 @@ You need Python 3.12 and about 3 GB of disk for packages and models. An `ANTHROP
 
 ```bash
 cp .env.example .env        # add ANTHROPIC_API_KEY or GEMINI_API_KEY
-make demo                   # setup (first run only) -> all evals -> web app on http://127.0.0.1:8000
+make demo                   # setup (first run only) -> all evals (Part 2 replayed; ~20 min on a laptop CPU) -> web app on http://127.0.0.1:8000
 ```
 
 * **Without make** (e.g. Windows): `python scripts/setup.py`, then `.venv\Scripts\python -m beatagent.cli demo`.
@@ -31,6 +31,7 @@ make demo                   # setup (first run only) -> all evals -> web app on 
 
 | Command | What it does |
 |---|---|
+| `make serve` | The web app alone; every result is already in `evals/results/` |
 | `make evals` | Parts 1–3; Part 2 and the recreation chat call the LLM live and are graded against an answer key (replayed or offline without a key) |
 | `make evals-replay` | The same, with Part 2 replaying the recorded tool calls (no API calls) |
 | `python -m evals.run_part2 --reference` | Part 2's sessions run by the engine from the answer key, no LLM |
@@ -38,7 +39,7 @@ make demo                   # setup (first run only) -> all evals -> web app on 
 | `python -m evals.run_recreate_chat [--offline]` | Chat changes to a recreation (mute, brighter, tempo, level, solo, undo, a refusal), graded on the score each turn leaves |
 | `python -m evals.run_baselines` | librosa and raw Beat This! baselines, plus degraded-audio stress tests |
 | `make check` | Checks that every number this README states matches `evals/results/` |
-| `make test` | 69 fast unit tests: conventions, edit invariants, formats, page safety, tempo maths, both grammars, Gemini schema and fallback |
+| `make test` | 72 fast unit tests: conventions, edit invariants, formats, page safety, tempo maths, both grammars, Gemini schema and fallback, server file and upload limits |
 | `python -m beatagent.cli analyze\|chat\|sync\|recreate FILE` | Individual tools on your own audio |
 
 Setup also downloads:
@@ -93,7 +94,7 @@ Setup also downloads:
 | Same sessions through the offline grammar | 10/10 turns match the answer key. I wrote the grammar with these commands in view, so this shows the fallback works, not that it generalises. Unit tests cover other phrasings and refusals. | `evals/results/part2_offline.md`, `tests/test_offline.py` |
 | Edits on a variable-tempo grid | Works (A3 live band, A5 tempo change in reference mode) | same |
 | Preview player with waveform and grid; direct edits; "confirm before applying" mode | Works. In confirm mode, edits are proposed with their exact echo and applied only on the user's click; this is enforced in code. | web app, Edit tab |
-| Audio → score → Web Audio page → offline render | Works for P1–P4; no network requests, no page errors; reproducible run to run | `evals/results/part3.md` |
+| Audio → score → Web Audio page → offline render | Works for P1–P4; no network requests, no page errors. Reproducible: a full re-run gives byte-identical scores and identical metrics; the Chromium renders differ by at most one 16-bit step (−90 dB) on under 0.05% of samples | `evals/results/part3.md` |
 | Note F vs reference MIDI | P1 drums 0.85; P2 drums 0.89, bass 0.98; P3 piano 0.78. Score timing vs MIDI: 0.3–1.1 ms median. | same |
 | Chat changes to the recreation, per-track mixer | The mixer works. Recreation chat (mute, brighter, tempo, level, solo, undo, and a refusal for "add a guitar"): live: 7/7 turns leave the score exactly as expected (Gemini); offline grammar: 7/7. | `evals/results/part3_chat.md`, `part3_chat_offline.md` |
 | `docker compose up` | The image **builds in CI** (`docker compose build`, including setup inside it: packages, Chromium, both model downloads and the stand-in pack; [run](https://github.com/eeshsaxena/beat-agent/actions/runs/45824763842)). **A full `up` (evals + app) has not been run in a container**; the same commands run natively. | `Dockerfile`, `.github/workflows/ci.yml` |
@@ -137,4 +138,4 @@ Setup also downloads:
 2. **Drum transcription is a hand-tuned rule classifier, tuned on the same P1/P2 it is scored on.** Expect overfitting. Open hats are missed, and hats under snares can't be separated by band energy (measured: the snare's noise dominates). A trained drum transcription model is the fix.
 3. **Polyphonic transcription (P3) is the weakest part.** Basic Pitch reports harmonics and decays as notes (precision 0.64, recall 0.99). Timbre is a few measured numbers (filter cutoff, kick pitch) feeding generic synth voices.
 
-See [DECISIONS.md](DECISIONS.md) for the main choices, every assumption, and what I did not build. [AI_USAGE.md](AI_USAGE.md) covers how AI was used and fifteen cases where it was wrong and how that was caught.
+See [DECISIONS.md](DECISIONS.md) for the main choices, every assumption, and what I did not build. [AI_USAGE.md](AI_USAGE.md) covers how AI was used and sixteen cases where it was wrong and how that was caught.
