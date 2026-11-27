@@ -1,5 +1,5 @@
-# One command: `make demo` (setup if needed, all evals with Part 2 replayed, then the web app on
-# http://127.0.0.1:8000). `make evals` runs Part 2 and the recreation chat live when an LLM key is set.
+# One command: `make demo` (setup if needed, all evals, then the web app on http://127.0.0.1:8000).
+# With an LLM key in .env, Part 2 and the recreation chat run live; without one they replay / use the grammar.
 # Windows without make: `python scripts/setup.py` then `.venv\Scripts\python -m beatagent.cli demo`.
 PYTHON ?= python3
 ifeq ($(OS),Windows_NT)

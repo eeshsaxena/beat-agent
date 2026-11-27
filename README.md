@@ -23,7 +23,7 @@ You need Python 3.12 and about 3 GB of disk for packages and models. An `ANTHROP
 
 ```bash
 cp .env.example .env        # add ANTHROPIC_API_KEY or GEMINI_API_KEY
-make demo                   # setup (first run only) -> all evals (Part 2 replayed; ~20 min on a laptop CPU) -> web app on http://127.0.0.1:8000
+make demo                   # setup (first run only) -> all evals, live with your key (~20 min on a laptop CPU) -> web app on http://127.0.0.1:8000
 ```
 
 * **Without make** (e.g. Windows): `python scripts/setup.py`, then `.venv\Scripts\python -m beatagent.cli demo`.
@@ -33,7 +33,7 @@ make demo                   # setup (first run only) -> all evals (Part 2 replay
 |---|---|
 | `make serve` | The web app alone; every result is already in `evals/results/` |
 | `make evals` | Parts 1–3; Part 2 and the recreation chat call the LLM live and are graded against an answer key (replayed or offline without a key) |
-| `make evals-replay` | The same, with Part 2 replaying the recorded tool calls (no API calls) |
+| `make evals-replay` | The same, with Part 2 replaying the recorded tool calls (no API calls); `cli demo --replay` does this before starting the app |
 | `python -m evals.run_part2 --reference` | Part 2's sessions run by the engine from the answer key, no LLM |
 | `python -m evals.run_part2 --offline` | Part 2's sessions through the offline grammar, graded against the answer key |
 | `python -m evals.run_recreate_chat [--offline]` | Chat changes to a recreation (mute, brighter, tempo, level, solo, undo, a refusal), graded on the score each turn leaves |
