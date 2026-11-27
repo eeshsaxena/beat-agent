@@ -20,7 +20,10 @@ BANDS = [("sub", 20, 150), ("low-mid", 150, 600), ("mid", 600, 3000), ("presence
 def bar_features(x: np.ndarray, sr: int, grid: BeatGrid) -> tuple[np.ndarray, list[tuple[int, float, float]]]:
     mono = x.mean(axis=1) if x.ndim > 1 else x
     hi = min(16000, sr / 2 - 500)
-    ys = [signal.sosfilt(signal.butter(4, (lo, min(h, hi)), "bandpass", fs=sr, output="sos"), mono) for _, lo, h in BANDS]
+    # a band above the Nyquist frequency (e.g. "air" in a 16 kHz file) can't be measured: it reads as silent in
+    # every bar, which drops out of the per-track comparison instead of crashing the filter design
+    ys = [signal.sosfilt(signal.butter(4, (lo, min(h, hi)), "bandpass", fs=sr, output="sos"), mono)
+          if min(h, hi) > lo * 1.1 else np.zeros_like(mono) for _, lo, h in BANDS]
     bars = grid.bars
     F, info = [], []
     for bar in range(1, grid.last_bar + 1):

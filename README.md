@@ -39,7 +39,7 @@ make demo                   # setup (first run only) -> all evals (Part 2 replay
 | `python -m evals.run_recreate_chat [--offline]` | Chat changes to a recreation (mute, brighter, tempo, level, solo, undo, a refusal), graded on the score each turn leaves |
 | `python -m evals.run_baselines` | librosa and raw Beat This! baselines, plus degraded-audio stress tests |
 | `make check` | Checks that every number this README states matches `evals/results/` |
-| `make test` | 72 fast unit tests: conventions, edit invariants, formats, page safety, tempo maths, both grammars, Gemini schema and fallback, server file and upload limits |
+| `make test` | 123 fast unit tests: conventions, edit invariants (including randomised multi-turn sessions), formats, page safety, malformed scores and commands, tempo maths, both grammars, Gemini schema and fallback, server file and upload limits |
 | `python -m beatagent.cli analyze\|chat\|sync\|recreate FILE` | Individual tools on your own audio |
 
 Setup also downloads:
@@ -138,4 +138,4 @@ Setup also downloads:
 2. **Drum transcription is a hand-tuned rule classifier, tuned on the same P1/P2 it is scored on.** Expect overfitting. Open hats are missed, and hats under snares can't be separated by band energy (measured: the snare's noise dominates). A trained drum transcription model is the fix.
 3. **Polyphonic transcription (P3) is the weakest part.** Basic Pitch reports harmonics and decays as notes (precision 0.64, recall 0.99). Timbre is a few measured numbers (filter cutoff, kick pitch) feeding generic synth voices.
 
-See [DECISIONS.md](DECISIONS.md) for the main choices, every assumption, and what I did not build. [AI_USAGE.md](AI_USAGE.md) covers how AI was used and sixteen cases where it was wrong and how that was caught.
+See [DECISIONS.md](DECISIONS.md) for the main choices, every assumption, and what I did not build. [AI_USAGE.md](AI_USAGE.md) covers how AI was used and seventeen cases where it was wrong and how that was caught.

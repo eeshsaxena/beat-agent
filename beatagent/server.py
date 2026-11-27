@@ -200,8 +200,10 @@ def check_llm() -> None:
                 from google.genai import types
 
                 client = genai.Client(api_key=llm.gemini_key(), http_options=types.HttpOptions(timeout=15_000))
-                model = llm.pick_gemini_model(client)
-                LLM_STATUS.update(provider="gemini", model=model, note=f"Gemini ({model} first, others if busy)")
+                model = llm.pick_gemini_model(client)  # also proves the key works (models.list is free)
+                last = llm._remembered_gemini_model()  # tried first: it answered within the last few hours
+                LLM_STATUS.update(provider="gemini", model=last or model,
+                                  note=f"Gemini {last}" if last else f"Gemini ({model} first, others if busy)")
             return
         except Exception as e:  # noqa: BLE001
             cause = e.__cause__ or e

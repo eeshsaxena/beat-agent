@@ -298,6 +298,9 @@ def derive_grid(tl: Timeline, src_grid: BeatGrid, sr: int) -> BeatGrid:
             strength.append(src_grid.strength[idx])
         o += p.length
     times = np.concatenate(times) if times else np.zeros(0)
+    # A cut is at a whole sample, the beat between two: when the edit starts the file on a beat (keep_only),
+    # that beat can come out a fraction of a sample below 0. It starts at the file's first sample.
+    times = np.maximum(times, 0.0)
     labels = np.concatenate(labels) if labels else np.zeros(0, int)
     st = np.concatenate(strength) if strength else None
     ibi = np.diff(times)

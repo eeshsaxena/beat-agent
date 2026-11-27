@@ -50,6 +50,9 @@
 16. **The web app could show a beat grid that belonged to different audio.** It cached each track's grid in memory by the track's name. Re-uploading a different file under the same name, or uploading a file called `A1.wav`, reused the old grid for the new audio. Caught in a review pass by following an upload through the server. Fixed: the cache key is the file's path, size and modification time, and an upload can't take a pack track's name. The same pass replaced a string-prefix path check (which admitted a sibling folder such as `runtime_old/`) with a real containment check.
     *Check:* `tests/test_server.py`.
 
+17. **Three bugs no example-based test had reached, found by fuzzing.** Random multi-turn edit sessions (500 sessions, 1,141 applied turns, invariants checked after each) showed that `keep_only` could start the grid a fraction of a sample before 0 s. Random commands showed that "the boring part" crashed on audio below 16 kHz, since one analysis band lay above the Nyquist frequency. Random corruptions of a score showed that the validator could raise a bare `TypeError` and accepted infinite or NaN values (an infinite note, a level of 1e20 dB). Fixed: the grid is clamped at 0, unreachable bands read as silent, and the validator checks shapes and requires finite numbers in range everywhere the page reads them.
+    *Check:* `tests/test_fuzz_edl.py` and `tests/test_robustness.py` (18 of them fail on the old code).
+
 ### Caught in my own review
 
 **TODO (you):** add at least one case you found yourself while reading the code, with the file, the line, what was off and how you noticed. Look closely at the edit conventions in `edl.py` against the system prompt in `agent.py`, and at the open-hat rule in `recreate.py`.

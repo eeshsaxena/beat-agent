@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import copy
 import json
+import math
 from pathlib import Path
 from typing import Annotated, Literal, Union
 
@@ -33,36 +34,66 @@ class ScoreError(ValueError):
     pass
 
 
+def _num(v, lo: float, hi: float) -> bool:
+    """A real, finite number in [lo, hi] (bools and NaN are not numbers here)."""
+    return isinstance(v, (int, float)) and not isinstance(v, bool) and math.isfinite(v) and lo <= v <= hi
+
+
 def validate(score: dict) -> dict:
-    """Check the score before it is embedded in a page (it is data, never code)."""
-    if score.get("schema") != SCHEMA:
+    """Check the score before it is embedded in a page (it is data, never code). Anything malformed, of
+    any shape, raises ScoreError; every number the page reads must be finite and in range, since one
+    NaN or infinite value would silence or blow up the audio graph."""
+    if not isinstance(score, dict) or score.get("schema") != SCHEMA:
         raise ScoreError("Not a beat-agent score.")
     tb = score.get("tempo_bpm")
-    if not isinstance(tb, (int, float)) or not 20 <= tb <= 400:
+    if not _num(tb, 20, 400):
         raise ScoreError(f"Tempo {tb!r} is outside 20-400 BPM.")
-    if not isinstance(score.get("loop_beats"), (int, float)) or score["loop_beats"] <= 0:
-        raise ScoreError("loop_beats must be positive.")
+    lb = score.get("loop_beats")
+    if not _num(lb, 1e-3, 1024):
+        raise ScoreError("loop_beats must be a positive number of beats (at most 1024).")
+    if not _num(score.get("beats_per_bar", 4), 1, 32):
+        raise ScoreError("beats_per_bar must be 1-32.")
+    if not _num(score.get("master_gain_db", 0.0), -60, 12):
+        raise ScoreError("master_gain_db must be between -60 and +12 dB.")
+    if not isinstance(score.get("title", ""), str) or len(score.get("title", "")) > 80:
+        raise ScoreError("The title must be a short string.")
+    tracks = score.get("tracks", [])
+    if not isinstance(tracks, list) or len(tracks) > 16:
+        raise ScoreError("tracks must be a list of at most 16 tracks.")
     ids = set()
-    for t in score.get("tracks", []):
+    for t in tracks:
+        if not isinstance(t, dict) or not isinstance(t.get("id"), str) or not 0 < len(t["id"]) <= 24:
+            raise ScoreError("Every track needs a short string id.")
         if t["id"] in ids:
             raise ScoreError(f"Duplicate track id {t['id']}.")
         ids.add(t["id"])
-        if t["kind"] not in ("drums", "pitched"):
-            raise ScoreError(f"Unknown track kind {t['kind']}.")
-        if len(t["notes"]) > 5000:
-            raise ScoreError("Too many notes for one track.")
-        for n in t["notes"]:
+        if not isinstance(t.get("name", t["id"]), str) or len(t.get("name", t["id"])) > 40:
+            raise ScoreError(f"Track {t['id']}: the name must be a short string.")
+        if t.get("kind") not in ("drums", "pitched"):
+            raise ScoreError(f"Unknown track kind {t.get('kind')!r}.")
+        if not _num(t.get("gain_db", 0.0), -60, 12):
+            raise ScoreError(f"Track {t['id']}: gain_db must be between -60 and +12 dB.")
+        if not all(isinstance(t.get(k, False), bool) for k in ("mute", "solo")):
+            raise ScoreError(f"Track {t['id']}: mute and solo are true or false.")
+        notes = t.get("notes")
+        if not isinstance(notes, list) or len(notes) > 5000:
+            raise ScoreError(f"Track {t['id']}: notes must be a list of at most 5000 notes.")
+        for n in notes:
             # types first: a string where a number belongs must be rejected, not crash the comparison
-            if set(n) != {"start", "duration", "pitch", "velocity"} or \
-                    not all(isinstance(v, (int, float)) and not isinstance(v, bool) for v in n.values()):
+            if not isinstance(n, dict) or set(n) != {"start", "duration", "pitch", "velocity"} or \
+                    not all(_num(v, -1e9, 1e9) for v in n.values()):
                 raise ScoreError(f"Invalid note in track {t['id']}: notes have exactly start, duration, pitch, velocity "
-                                 "as numbers.")
-            if not (0 <= n["start"] < score["loop_beats"] + 1e-6 and n["duration"] > 0 and 0 <= n["pitch"] <= 127
+                                 "as finite numbers.")
+            if not (0 <= n["start"] < lb + 1e-6 and 0 < n["duration"] <= lb and 0 <= n["pitch"] <= 127
                     and 0 <= n["velocity"] <= 1):
                 raise ScoreError(f"Invalid note in track {t['id']}: {n}")
-        for k, v in t["patch"].items():
-            if not isinstance(v, (int, float, str)) or (isinstance(v, str) and len(v) > 24):
-                raise ScoreError("Patch values must be short numbers or names.")
+        patch = t.get("patch")
+        if not isinstance(patch, dict) or len(patch) > 32:
+            raise ScoreError(f"Track {t['id']}: patch must be a small object.")
+        for k, v in patch.items():
+            if not isinstance(k, str) or len(k) > 24 or not (
+                    _num(v, -1e6, 1e6) or (isinstance(v, str) and len(v) <= 24)):
+                raise ScoreError("Patch values must be short names or finite numbers.")
     return score
 
 
